@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Movies | BOOK_MY_SEAT</title>
+  <meta name="description" content="Search and filter movies by title, genre and language.">
+  <meta name="theme-color" content="#111114">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Gloock&display=swap">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components.css">
+</head>
+<body data-root="../" data-nav="movies">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="site-header" id="site-header"></header>
+
+  <main id="main">
+    <section class="page-header">
+      <div class="container">
+        <h1>Movies</h1>
+        <p>Search by title, then narrow the list by genre or language.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <form class="filters" id="filters" role="search" aria-label="Filter movies">
+          <div class="field">
+            <label class="field__label" for="search">Search by title</label>
+            <input class="input" id="search" type="search" placeholder="For example, Monsoon" autocomplete="off">
+          </div>
+          <div class="field">
+            <label class="field__label" for="language">Language</label>
+            <select class="input" id="language"><option value="">All languages</option></select>
+          </div>
+          <button class="btn btn--outline" type="button" id="clear-filters">Clear filters</button>
+        </form>
+
+        <div class="field">
+          <span class="field__label" id="genre-label">Genre</span>
+          <div class="chip-list" id="genre-chips" role="group" aria-labelledby="genre-label"></div>
+        </div>
+
+        <p class="results-count" id="results-count" aria-live="polite"></p>
+        <div class="grid-movies" id="movie-grid"></div>
+        <noscript><p class="noscript-note">Please enable JavaScript to see movies.</p></noscript>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="site-footer"></footer>
+  <script type="module" src="../js/pages/movies.js"></script>
+</body>
+</html>

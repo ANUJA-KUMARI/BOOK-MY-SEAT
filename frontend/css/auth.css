@@ -1,0 +1,49 @@
+/* Login and Register pages. Reuses tokens.css, base.css (.field, .input, .btn) and components.css. */
+.auth {
+  width: min(100% - 2 * var(--gutter), 960px);
+  margin: var(--space-7) auto;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  overflow: hidden;
+  background: var(--c-surface);
+  border: 1.5px solid var(--c-line);
+  border-radius: var(--radius-lg);
+}
+.auth__aside {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-7) var(--space-6);
+  background: linear-gradient(165deg, var(--c-burgundy-800), var(--c-charcoal-950));
+  color: var(--c-on-dark);
+}
+.auth__brand { margin: 0 0 var(--space-3); font-family: var(--font-display); font-size: var(--fs-xl); line-height: 1.2; }
+.auth__tagline { margin: 0; color: var(--c-on-dark-soft); }
+.auth__panel { padding: var(--space-7) var(--space-6); }
+.auth__panel h1 { font-size: var(--fs-xl); }
+.auth__intro { margin-bottom: var(--space-5); color: var(--c-ink-soft); }
+
+.auth-form { display: grid; gap: var(--space-4); }
+.field__hint { margin: 0; color: var(--c-ink-soft); font-size: var(--fs-sm); }
+.field__error { margin: 0; color: var(--c-red-700); font-size: var(--fs-sm); font-weight: 500; }
+.field__error:empty { display: none; }
+.input[aria-invalid="true"] { border-color: var(--c-red-600); }
+
+.form-status {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  color: #1f5535;
+  background: #eef6f0;
+  border: 1.5px solid #2f7d4f;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+}
+.form-status[hidden] { display: none; }
+
+.auth__switch { margin: var(--space-5) 0 0; color: var(--c-ink-soft); }
+
+@media (max-width: 820px) {
+  .auth { grid-template-columns: 1fr; margin-block: var(--space-5); }
+  .auth__aside { display: none; }
+  .auth__panel { padding: var(--space-6) var(--space-5); }
+}

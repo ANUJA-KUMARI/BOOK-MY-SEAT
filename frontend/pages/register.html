@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create an account | BOOK_MY_SEAT</title>
+  <meta name="description" content="Create a BOOK_MY_SEAT account to book movie tickets.">
+  <meta name="theme-color" content="#111114">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Gloock&display=swap">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/auth.css">
+</head>
+<body data-root="../" data-nav="">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="site-header" id="site-header"></header>
+
+  <main id="main">
+    <div class="auth">
+      <aside class="auth__aside" aria-hidden="true">
+        <p class="auth__brand">BOOK<span class="brand__sep">_</span>MY<span class="brand__sep">_</span>SEAT</p>
+        <p class="auth__tagline">Create an account to book seats and keep every ticket in one place.</p>
+      </aside>
+      <section class="auth__panel" aria-labelledby="auth-title">
+        <h1 id="auth-title">Create an account</h1>
+        <p class="auth__intro">It takes a minute. All fields are required.</p>
+        <form class="auth-form" data-auth="register" method="post" action="#" novalidate>
+          <div class="field">
+            <label class="field__label" for="name">Full name</label>
+            <input class="input" id="name" name="name" type="text" autocomplete="name" required>
+            <p class="field__error" id="name-error"></p>
+          </div>
+          <div class="field">
+            <label class="field__label" for="email">Email</label>
+            <input class="input" id="email" name="email" type="email" autocomplete="email" inputmode="email" required>
+            <p class="field__error" id="email-error"></p>
+          </div>
+          <div class="field">
+            <label class="field__label" for="password">Password</label>
+            <input class="input" id="password" name="password" type="password" autocomplete="new-password" aria-describedby="password-hint" required>
+            <p class="field__hint" id="password-hint">Use at least 8 characters.</p>
+            <p class="field__error" id="password-error"></p>
+          </div>
+          <div class="field">
+            <label class="field__label" for="confirm">Confirm password</label>
+            <input class="input" id="confirm" name="confirm" type="password" autocomplete="new-password" required>
+            <p class="field__error" id="confirm-error"></p>
+          </div>
+          <p class="form-status" id="form-status" role="status" hidden></p>
+          <button class="btn btn--primary btn--block" type="submit">Create account</button>
+        </form>
+        <p class="auth__switch">Already have an account? <a class="text-link" href="login.html">Log in</a></p>
+      </section>
+    </div>
+    <noscript><p class="noscript-note">Please enable JavaScript to use this form.</p></noscript>
+  </main>
+
+  <footer class="site-footer" id="site-footer"></footer>
+  <script type="module" src="../js/pages/auth.js"></script>
+</body>
+</html>

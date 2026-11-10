@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Select seats | BOOK_MY_SEAT</title>
+  <meta name="description" content="Choose your seats for a BOOK_MY_SEAT show.">
+  <meta name="theme-color" content="#111114">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Gloock&display=swap">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/seats.css">
+</head>
+<body data-root="../" data-nav="movies">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="site-header" id="site-header"></header>
+
+  <main id="main">
+    <!-- Filled by seats.js: movie, cinema, date and showtime -->
+    <section class="show-summary" id="show-summary" aria-label="Show details" hidden></section>
+
+    <!-- Loading skeleton first, then an error message if the show cannot be loaded -->
+    <div class="container section" id="seat-message" aria-busy="true">
+      <div class="skeleton" style="height: 8rem" aria-hidden="true"></div>
+    </div>
+
+    <section class="section seat-section" id="seat-layout" aria-label="Seat selection" hidden>
+      <div class="container booking-layout">
+        <div class="seat-main">
+          <div class="seat-stage">
+            <div class="seat-stage__inner">
+              <div class="screen" aria-hidden="true">Screen</div>
+              <!-- Rows A to H are rendered here by seats.js -->
+              <div class="seat-grid" id="seat-grid" role="group" aria-label="Seat map"></div>
+            </div>
+          </div>
+
+          <ul class="seat-legend" aria-label="Seat legend">
+            <li><span class="cinema-seat cinema-seat--available" aria-hidden="true"></span>Available</li>
+            <li><span class="cinema-seat cinema-seat--booked" aria-hidden="true"></span>Booked</li>
+            <li><span class="cinema-seat cinema-seat--selected" aria-hidden="true"></span>Selected</li>
+          </ul>
+          <p class="seat-scroll-hint">Swipe sideways to see every seat.</p>
+        </div>
+
+        <aside aria-label="Booking summary">
+          <div class="summary-card" id="booking-panel">
+            <h2 class="summary-card__title">Your booking</h2>
+            <p class="summary-card__empty">No seats selected yet.</p>
+            <button class="btn btn--primary btn--block booking-panel__action" type="button" disabled>Confirm booking</button>
+            <p class="summary-card__note">Demo project: no real payment is taken.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+    <noscript><p class="noscript-note">Please enable JavaScript to select seats.</p></noscript>
+  </main>
+
+  <footer class="site-footer" id="site-footer"></footer>
+  <script type="module" src="../js/pages/seats.js"></script>
+</body>
+</html>

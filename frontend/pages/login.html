@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in | BOOK_MY_SEAT</title>
+  <meta name="description" content="Log in to BOOK_MY_SEAT to book seats and view your tickets.">
+  <meta name="theme-color" content="#111114">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Gloock&display=swap">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/auth.css">
+</head>
+<body data-root="../" data-nav="">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="site-header" id="site-header"></header>
+
+  <main id="main">
+    <div class="auth">
+      <aside class="auth__aside" aria-hidden="true">
+        <p class="auth__brand">BOOK<span class="brand__sep">_</span>MY<span class="brand__sep">_</span>SEAT</p>
+        <p class="auth__tagline">Welcome back. Log in to pick your seats and see your tickets.</p>
+      </aside>
+      <section class="auth__panel" aria-labelledby="auth-title">
+        <h1 id="auth-title">Log in</h1>
+        <p class="auth__intro">Enter your email and password to continue.</p>
+        <form class="auth-form" data-auth="login" method="post" action="#" novalidate>
+          <div class="field">
+            <label class="field__label" for="email">Email</label>
+            <input class="input" id="email" name="email" type="email" autocomplete="email" inputmode="email" required>
+            <p class="field__error" id="email-error"></p>
+          </div>
+          <div class="field">
+            <label class="field__label" for="password">Password</label>
+            <input class="input" id="password" name="password" type="password" autocomplete="current-password" required>
+            <p class="field__error" id="password-error"></p>
+          </div>
+          <p class="form-status" id="form-status" role="status" hidden></p>
+          <button class="btn btn--primary btn--block" type="submit">Log in</button>
+        </form>
+        <p class="auth__switch">New to BOOK_MY_SEAT? <a class="text-link" href="register.html">Create an account</a></p>
+      </section>
+    </div>
+    <noscript><p class="noscript-note">Please enable JavaScript to use this form.</p></noscript>
+  </main>
+
+  <footer class="site-footer" id="site-footer"></footer>
+  <script type="module" src="../js/pages/auth.js"></script>
+</body>
+</html>

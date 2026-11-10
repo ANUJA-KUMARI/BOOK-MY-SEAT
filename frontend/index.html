@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BOOK_MY_SEAT | Book movie tickets online</title>
+  <meta name="description" content="Browse movies, pick a showtime and choose your seats with BOOK_MY_SEAT, an academic demo project.">
+  <meta name="theme-color" content="#111114">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Gloock&display=swap">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body data-root="" data-nav="home">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="site-header" id="site-header"></header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="container hero__grid">
+        <div>
+          <h1 class="hero__title">Pick a film. Pick your seat.</h1>
+          <p class="hero__lead">See what is playing, choose a cinema and showtime, and book the seats you want in a few steps.</p>
+          <form class="search-bar" action="pages/movies.html" method="get" role="search">
+            <label class="sr-only" for="hero-search">Search movies by title</label>
+            <input class="input" id="hero-search" type="search" name="search" placeholder="Search movies by title" autocomplete="off">
+            <button class="btn btn--primary" type="submit">Search</button>
+          </form>
+        </div>
+        <div class="seat-map" id="hero-seats" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="featured-heading">
+      <div class="container">
+        <div class="section__head">
+          <h2 id="featured-heading">Featured movies</h2>
+          <a class="text-link" href="pages/movies.html">View all movies</a>
+        </div>
+        <div class="grid-movies" id="featured-grid"></div>
+        <noscript><p class="noscript-note">Please enable JavaScript to see movies.</p></noscript>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="genre-heading">
+      <div class="container">
+        <h2 id="genre-heading">Browse by genre</h2>
+        <ul class="chip-list" id="genre-links"></ul>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="how-heading">
+      <div class="container">
+        <h2 id="how-heading">How booking works</h2>
+        <ol class="steps">
+          <li class="step"><h3 class="step__title">Choose a movie</h3><p>Search by title or filter by genre and language.</p></li>
+          <li class="step"><h3 class="step__title">Pick a show</h3><p>Select a date, a cinema and a showtime that suits you.</p></li>
+          <li class="step"><h3 class="step__title">Select seats</h3><p>Choose up to 6 seats, review the total and confirm.</p></li>
+          <li class="step"><h3 class="step__title">Get your ticket</h3><p>Every booking gets a unique reference you can find under My Bookings.</p></li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="site-footer"></footer>
+  <script type="module" src="js/pages/home.js"></script>
+</body>
+</html>

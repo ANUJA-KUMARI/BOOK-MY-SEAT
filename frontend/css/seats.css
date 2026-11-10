@@ -1,0 +1,191 @@
+/* Seat selection page. Reuses .booking-layout, .summary-card and .btn from components.css / base.css.
+   Seat classes are named .cinema-seat on purpose: the plain .seat classes in components.css are the
+   translucent decorative seats of the home page hero. */
+
+/* ---------- Show summary band ---------- */
+.show-summary {
+  padding-block: var(--space-6);
+  background: linear-gradient(165deg, var(--c-burgundy-900), var(--c-charcoal-950));
+  color: var(--c-on-dark);
+}
+.show-summary[hidden] { display: none; }
+.show-summary__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+.show-summary h1 { margin-bottom: var(--space-1); font-size: var(--fs-xl); }
+.show-summary__movie { margin: 0; font-family: var(--font-display); font-size: var(--fs-lg); }
+.show-summary__list { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-6); margin: 0; }
+.show-summary__list dt { color: var(--c-on-dark-soft); font-size: var(--fs-sm); }
+.show-summary__list dd { margin: 0; font-weight: 600; }
+
+/* ---------- Seat map ---------- */
+.seat-section[hidden] { display: none; }
+
+/* Sizes live here so the legend swatches and the seats stay in sync. */
+.seat-main {
+  --seat-size: 2.25rem;
+  --seat-gap: 0.4rem;
+  --seat-aisle: 1.75rem;
+}
+
+/* The stage scrolls sideways when the seat map is wider than the screen (phones). */
+.seat-stage { overflow-x: auto; padding-bottom: var(--space-2); }
+.seat-stage__inner { width: max-content; margin-inline: auto; }
+
+.screen {
+  width: 80%;
+  height: 2.75rem;
+  margin: 0 auto var(--space-6);
+  padding-top: var(--space-2);
+  text-align: center;
+  color: var(--c-ink-soft);
+  font-size: var(--fs-sm);
+  border-top: 4px solid var(--c-red-600);
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  background: linear-gradient(to bottom, rgba(196, 47, 71, 0.18), transparent);
+}
+
+.seat-grid {
+  display: grid;
+  gap: var(--seat-gap);
+  padding: var(--space-5) var(--space-4);
+  background: var(--c-surface);
+  border: 1.5px solid var(--c-line);
+  border-radius: var(--radius-lg);
+}
+.seat-row { display: flex; align-items: center; gap: var(--space-3); }
+.seat-row__label {
+  flex: none;
+  width: 1.25rem;
+  text-align: center;
+  color: var(--c-ink-soft);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+.seat-row__seats { display: flex; gap: var(--seat-gap); }
+
+/* One seat. The state classes below are the only difference between seats. */
+.cinema-seat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--seat-size);
+  height: var(--seat-size);
+  border: 1.5px solid transparent;
+  border-radius: 8px 8px 4px 4px;
+  font-size: 0.75rem;
+  font-family: inherit;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0;
+}
+.cinema-seat--aisle-after { margin-right: var(--seat-aisle); }
+
+.cinema-seat--available { background: var(--c-paper); border-color: var(--c-ink-soft); color: var(--c-ink); }
+.cinema-seat--booked { background: var(--c-charcoal-700); border-color: var(--c-charcoal-700); color: var(--c-on-dark-soft); }
+.cinema-seat--selected { background: var(--c-red-600); border-color: var(--c-burgundy-700); color: #fff; }
+
+/* Interaction (only real seat buttons, not the legend swatches) */
+button.cinema-seat--available { cursor: pointer; transition: border-color var(--t-fast), background var(--t-fast); }
+button.cinema-seat--available:hover { background: var(--c-surface); border-color: var(--c-burgundy-600); }
+button.cinema-seat--selected { cursor: pointer; transition: background var(--t-fast); }
+button.cinema-seat--selected:hover { background: var(--c-red-700); }
+button.cinema-seat--booked { cursor: not-allowed; }
+button.cinema-seat:focus-visible { position: relative; z-index: 1; outline-offset: 2px; }
+
+/* Seat limit message: sits above the seat map and stays under the navbar while the map scrolls past */
+.seat-alert {
+  position: sticky;
+  top: calc(var(--nav-h) + var(--space-2));
+  z-index: 5;
+  margin: 0 0 var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  color: #7a1226;
+  background: #fdecef;
+  border: 1.5px solid var(--c-red-600);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+}
+.seat-alert[hidden] { display: none; }
+
+/* ---------- Legend and mobile hint ---------- */
+.seat-legend {
+  --seat-size: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin-top: var(--space-4);
+  font-size: var(--fs-sm);
+}
+.seat-legend li { display: flex; align-items: center; gap: var(--space-2); }
+.seat-scroll-hint { display: none; margin: var(--space-2) 0 0; color: var(--c-ink-soft); font-size: var(--fs-sm); }
+
+@media (max-width: 640px) {
+  .seat-main { --seat-size: 2rem; --seat-gap: 0.3rem; --seat-aisle: 1.25rem; }
+  .seat-scroll-hint { display: block; }
+}
+
+/* ---------- Booking summary placeholder ---------- */
+.booking-empty { color: var(--c-ink-soft); }
+.booking-empty p { margin: 0 0 var(--space-2); }
+.booking-empty__title { color: var(--c-ink); font-weight: 700; }
+
+/* Category headings inside the seat map */
+.seat-category {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+  padding-bottom: var(--space-1);
+  border-bottom: 1px solid var(--c-line);
+  font-size: var(--fs-sm);
+}
+.seat-category:first-child { margin-top: 0; }
+.seat-category__name { font-weight: 700; }
+.seat-category__price { color: var(--c-ink-soft); }
+
+/* Price lines and total in the booking panel */
+.price-lines { display: grid; gap: var(--space-2); margin: var(--space-3) 0 0; }
+.price-line {
+  display: grid;
+  grid-template-columns: 3rem 1fr auto;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+.price-line__seat { font-weight: 700; }
+.price-line__category { color: var(--c-ink-soft); font-size: var(--fs-sm); }
+.price-line__amount { font-variant-numeric: tabular-nums; }
+
+.booking-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 2px dashed var(--c-line);
+}
+.booking-total__label { font-weight: 700; }
+.booking-total__amount {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+.booking-panel__status {
+  margin: var(--space-4) 0 0;
+  padding: var(--space-3);
+  color: var(--c-ink);
+  background: var(--c-sand);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+}
+.booking-panel__status[hidden] { display: none; }
+.booking-panel__action { margin-top: var(--space-5); }
+.booking-panel__action[disabled] { opacity: 0.5; cursor: not-allowed; }
+.booking-panel__action[disabled]:hover { background: var(--c-red-600); }
