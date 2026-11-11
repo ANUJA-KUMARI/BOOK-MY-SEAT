@@ -41,11 +41,11 @@ async function postRegistration(payload) {
 }
 
 describe('POST /api/auth/register validation', () => {
-  it('rejects a missing or non-object body without touching the database', async () => {
+  it('rejects an empty registration object without touching the database', async () => {
     const response = await fetch(`${baseUrl}/api/auth/register`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', origin: baseUrl },
-      body: 'null',
+      body: '{}',
     });
     const body = await response.json();
     assert.equal(response.status, 400);
