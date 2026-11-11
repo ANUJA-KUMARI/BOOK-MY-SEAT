@@ -1,7 +1,7 @@
 // Server-side authentication validation.
 // These rules intentionally mirror frontend/js/validators.js. Client-side checks are only for UX;
 // these server checks remain authoritative.
-const EMAIL_PATTERN = /^[^\\s@]+@(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\\.)+([A-Za-z]{2,})$/;
+const EMAIL_PATTERN = /^[^\s@]+@(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\.)+([A-Za-z]{2,})$/;
 const COMMON_ENDINGS = new Set([
   'com', 'org', 'net', 'edu', 'gov', 'mil', 'int', 'info', 'biz', 'name', 'pro',
   'dev', 'app', 'online', 'site', 'tech', 'store', 'xyz', 'cloud', 'email', 'blog',
