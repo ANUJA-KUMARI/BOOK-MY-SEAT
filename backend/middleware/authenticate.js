@@ -20,7 +20,12 @@ function authenticate(req, res, next) {
       audience: config.jwt.audience,
     });
 
-    if (!payload.sub || !['USER', 'ADMIN'].includes(payload.role)) {
+    if (
+      typeof payload.sub !== 'string'
+      || !/^[1-9]\\d*$/.test(payload.sub)
+      || !Number.isSafeInteger(Number(payload.sub))
+      || !['USER', 'ADMIN'].includes(payload.role)
+    ) {
       throw new Error('Invalid token claims');
     }
 
