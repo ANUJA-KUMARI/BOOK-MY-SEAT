@@ -46,6 +46,10 @@ async function login(req, res) {
   if (passwordError) errors.password = passwordError;
   if (Object.keys(errors).length) throw new AppError(400, 'Please correct the highlighted fields.', errors);
 
+  if (!config.jwt.secret) {
+    throw new AppError(503, 'Authentication is temporarily unavailable. Please configure the server signing key.');
+  }
+
   const user = await authService.loginUser({ email: body.email, password: body.password });
   const token = signAccessToken(user);
   res.cookie(AUTH_COOKIE, token, authCookieOptions());
@@ -65,4 +69,4 @@ async function logout(req, res) {
   return sendSuccess(res, { message: 'You have been logged out.' });
 }
 
-module.exports = { register, login, currentUser, logout };
+module.exports = { AUTH_COOKIE, authCookieOptions, register, login, currentUser, logout };
