@@ -33,7 +33,7 @@ describe('password utilities', () => {
   });
 
   it('rejects invalid input when creating a hash and safely rejects invalid comparison input', async () => {
-    await assert.rejects(() => hashPassword(''), /non-empty password/);
+    await assert.rejects(() => hashPassword(''), /non-empty string/g);
     await assert.rejects(() => hashPassword(null), /non-empty password/);
     assert.equal(await comparePassword(null, 'not-a-hash'), false);
     assert.equal(await comparePassword('password', ''), false);
