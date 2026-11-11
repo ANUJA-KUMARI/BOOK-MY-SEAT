@@ -18,7 +18,7 @@ function readWholeNumber(env, name, fallback, min, max) {
 }
 
 function readNonEmptyString(env, name, fallback) {
-  const value = env[name] === undefined || env[name] === '' ? fallback : env[name];
+  const value = env[name] === undefined ? fallback : env[name];
   if (typeof value !== 'string' || value.trim() === '' || value !== value.trim()) {
     throw new Error(`${name} must be a non-empty string without leading or trailing whitespace`);
   }
@@ -58,14 +58,15 @@ function loadConfig(env = process.env) {
     throw new Error('JWT_SECRET must contain at least 32 characters and have no leading or trailing whitespace');
   }
 
+  const jwtExpiresIn = env.JWT_EXPIRES_IN === undefined ? '15m' : env.JWT_EXPIRES_IN;
+  if (typeof jwtExpiresIn !== 'string' || !/^[1-9]\d*(s|m|h|d)$/.test(jwtExpiresIn)) {
+    throw new Error('JWT_EXPIRES_IN must be a positive integer followed by s, m, h, or d (for example 15m)');
+  }
   const jwt = {
-    expiresIn: readNonEmptyString(env, 'JWT_EXPIRES_IN', '15m'),
+    expiresIn: jwtExpiresIn,
     issuer: readNonEmptyString(env, 'JWT_ISSUER', 'book-my-seat'),
     audience: readNonEmptyString(env, 'JWT_AUDIENCE', 'book-my-seat-client'),
   };
-  if (!/^[1-9]\d*(s|m|h|d)$/.test(jwt.expiresIn)) {
-    throw new Error('JWT_EXPIRES_IN must be a positive integer followed by s, m, h, or d (for example 15m)');
-  }
   // Never expose the signing secret through config logging or JSON serialization.
   Object.defineProperty(jwt, 'secret', { value: jwtSecret, enumerable: false });
 
