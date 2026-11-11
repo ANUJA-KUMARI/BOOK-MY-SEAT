@@ -1,6 +1,6 @@
-// Registration business logic. Controllers never contain SQL or password-hashing rules.
+// Authentication business logic. SQL and password hashing stay outside controllers.
 const { getPool, toDatabaseError } = require('../config/db');
-const { hashPassword } = require('../utils/password');
+const { hashPassword, comparePassword } = require('../utils/password');
 const AppError = require('../utils/AppError');
 
 async function registerUser({ name, email, password }) {
@@ -28,4 +28,32 @@ async function registerUser({ name, email, password }) {
   }
 }
 
-module.exports = { registerUser };
+async function loginUser({ email, password }) {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  try {
+    const [rows] = await getPool().execute(
+      'SELECT id, name, email, password_hash, role FROM users WHERE email = ? LIMIT 1',
+      [normalizedEmail],
+    );
+
+    const user = rows[0];
+
+    // Use the same response for unknown email and incorrect password.
+    if (!user || !(await comparePassword(password, user.password_hash))) {
+      throw new AppError(401, 'Invalid email or password.');
+    }
+
+    return {
+      id: Number(user.id),
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    };
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    throw toDatabaseError(error);
+  }
+}
+
+module.exports = { registerUser, loginUser };
