@@ -27,7 +27,7 @@ describe('password utilities', () => {
     const plainText = 'correct-horse-battery';
     const hash = await hashPassword(plainText);
     assert.notEqual(hash, plainText);
-    assert.match(hash, /^\\$2[aby]\\$12\\$/);
+    assert.match(hash, /^\$2[aby]\$12\$/);
     assert.equal(await comparePassword(plainText, hash), true);
     assert.equal(await comparePassword('incorrect-password', hash), false);
   });
