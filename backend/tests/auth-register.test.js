@@ -44,7 +44,7 @@ describe('POST /api/auth/register validation', () => {
   it('rejects a missing or non-object body without touching the database', async () => {
     const response = await fetch(`${baseUrl}/api/auth/register`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', origin: baseUrl },
       body: 'null',
     });
     const body = await response.json();
