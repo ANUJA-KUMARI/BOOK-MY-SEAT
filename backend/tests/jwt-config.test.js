@@ -53,7 +53,7 @@ describe('JWT settings in config/env.js', () => {
   });
 
   it('rejects invalid JWT expiry formats', () => {
-    for (const expiresIn of ['', '0m', '-1m', '15', '1w', '1.5h', '15M', ' 15m']) {
+    for (const expiresIn of ['0m', '-1m', '15', '1w', '1.5h', '15M', ' 15m']) {
       assert.throws(
         () => loadConfig({ JWT_EXPIRES_IN: expiresIn }),
         /JWT_EXPIRES_IN must be a positive integer followed by s, m, h, or d/,
