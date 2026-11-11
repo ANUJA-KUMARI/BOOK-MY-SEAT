@@ -34,7 +34,7 @@ after(async () => {
 async function postRegistration(payload) {
   const response = await fetch(`${baseUrl}/api/auth/register`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', origin: baseUrl },
     body: JSON.stringify(payload),
   });
   return { response, body: await response.json() };
