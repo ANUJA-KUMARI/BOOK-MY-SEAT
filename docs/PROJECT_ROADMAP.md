@@ -1,6 +1,6 @@
 # BOOK_MY_SEAT — Project Roadmap
 
-**Current status:** Phase 4 completed.  
+**Current status:** Phase 5 completed and locally verified by the project owner.  
 **Baseline plan:** The original approved project documentation defines eight phases. This roadmap preserves those eight phases and separately records a possible Phase 9 release/hardening extension.
 
 ---
@@ -13,7 +13,7 @@
 | 2 | Frontend foundation and user-interface implementation | **Completed** |
 | 3 | Backend foundation and REST API | **Completed** |
 | 4 | MySQL database integration | **Completed** |
-| 5 | Authentication and account security | **Next** |
+| 5 | Authentication and account security | **Completed** |
 | 6 | Seat availability and booking management | Planned |
 | 7 | Frontend-to-backend integration | Planned |
 | 8 | Admin functionality and management | Planned |
@@ -79,29 +79,30 @@ See `docs/PHASE_4_COMPLETION_REPORT.md`.
 
 ### Phase 5 — Authentication
 
-**Status: Next**
+**Status: Completed — locally verified by the project owner**
 
 **Objective:** Implement secure server-side user registration, login, logout and identity verification.
 
-Planned scope, subject to the approved Phase 1 authentication design:
+**Delivered and verified:**
 
 - Registration endpoint and server-side validation.
-- Password hashing using bcrypt/bcryptjs.
-- Login credential verification.
-- JWT issuance and verification.
-- Protected-route authentication middleware.
-- Current-user endpoint and logout/token invalidation behavior consistent with the selected token strategy.
-- Cookie security, CSRF protection and appropriate cookie settings if using the approved HttpOnly-cookie approach.
-- Role-aware authorization foundation where required.
-- Login and registration rate limiting.
-- Safe authentication errors and no password/hash/token leakage.
-- Automated tests for success, invalid input, duplicate email, invalid credentials, token expiry/invalidity, protected routes and abuse controls.
+- Password hashing with bcrypt (12 rounds).
+- Login credential verification and generic invalid-credential responses.
+- JWT issuance and verification (HS256, 15-minute expiry, configured issuer/audience).
+- HttpOnly access-token cookie and separate CSRF cookie.
+- Protected-route authentication middleware and strict user-ID claim validation.
+- Current-user endpoint that reloads the user from MySQL and returns a safe profile.
+- Role-aware authorization middleware; registration always assigns USER.
+- Same-origin validation and double-submit CSRF protection for logout.
+- Login rate limiting (5 attempts/15 minutes) and registration rate limiting (5 attempts/hour).
+- Logout clears authentication and CSRF cookies. Copied stateless JWTs remain valid until expiry, as approved.
+- Stage reports and consolidated completion report in `docs/PHASE_5_COMPLETION_REPORT.md`.
 
-**Not included:** booking creation, seat availability, frontend API switching or admin CRUD.
+**Local verification reported by the project owner:** 200 tests passed, 0 failed, 0 skipped across 48 suites; `npm run db:check` reported `ALL CHECKS PASSED`.
 
-**Entry checks:** Read the Phase 1 authentication decisions and audit the existing dependency list and user schema before selecting/installing packages. The presence of `users.password_hash` and `users.role` does not mean authentication already exists.
+**Not included:** booking creation, seat availability, frontend API switching, admin CRUD, schema changes or server-side JWT revocation.
 
-**Exit checks:** Registration/login/logout/current-user flows work through the backend; passwords are hashed; tokens and protected routes are tested; secrets are not exposed.
+**Operational note:** The current rate limiter uses an in-process memory store. A shared store is needed before multi-instance production deployment.
 
 ### Phase 6 — Seat availability and booking management
 
@@ -210,12 +211,4 @@ Possible scope:
 
 ## 6. Immediate next action
 
-Begin **Phase 5 — Authentication** with a focused audit of:
-
-1. `users` table fields and constraints.
-2. Phase 1 authentication decisions in `docs/phase-reports/PHASE_1_REPORT.md`.
-3. Existing login/register frontend forms and validators (do not integrate them yet).
-4. Current dependencies and environment configuration.
-5. Existing middleware, error handling and test conventions.
-
-Then prepare a Phase 5 implementation plan for approval before changing application code.
+Begin **Phase 6 — Seat Availability and Booking Management** with a focused audit of the Phase 1 booking requirements and Phase 4 database schema. Confirm seat ownership/screen relationships, six-seat limit, server-side price calculation, transaction boundaries, concurrency/double-booking prevention, cancellation rules and booking ownership before implementation. Keep frontend API integration in Phase 7 and admin management in Phase 8.
