@@ -56,4 +56,18 @@ async function loginUser({ email, password }) {
   }
 }
 
-module.exports = { registerUser, loginUser };
+async function findUserById(id) {
+  try {
+    const [rows] = await getPool().execute(
+      'SELECT id, name, email, role FROM users WHERE id = ? LIMIT 1',
+      [id],
+    );
+    const user = rows[0];
+    if (!user) return null;
+    return { id: Number(user.id), name: user.name, email: user.email, role: user.role };
+  } catch (error) {
+    throw toDatabaseError(error);
+  }
+}
+
+module.exports = { registerUser, loginUser, findUserById };
