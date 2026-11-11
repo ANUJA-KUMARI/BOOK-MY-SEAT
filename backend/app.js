@@ -3,6 +3,7 @@
 
 const express = require('express');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 const { config } = require('./config/env');
 const apiRoutes = require('./routes');
 const requestLogger = require('./middleware/requestLogger');
@@ -26,6 +27,7 @@ app.use(helmet({
 if (!config.isTest) app.use(requestLogger);
 
 app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser());
 
 app.use('/api', apiRoutes);
 app.use('/api', apiNotFound);
