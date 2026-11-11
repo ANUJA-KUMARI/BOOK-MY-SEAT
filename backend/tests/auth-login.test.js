@@ -34,7 +34,7 @@ after(async () => {
 async function postLogin(payload) {
   const response = await fetch(`${baseUrl}/api/auth/login`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', origin: baseUrl },
     body: JSON.stringify(payload),
   });
   return { response, body: await response.json() };
