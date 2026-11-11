@@ -390,7 +390,7 @@ describe('JWT configuration (config/env.js)', () => {
   });
 
   it('rejects invalid JWT expiry formats', () => {
-    for (const expiresIn of ['', '0m', '-1m', '15 minutes', '1.5h', '15M', 'abc']) {
+    for (const expiresIn of ['0m', '-1m', '15 minutes', '1.5h', '15M', 'abc']) {
       assert.throws(
         () => loadConfig({ JWT_EXPIRES_IN: expiresIn }),
         /JWT_EXPIRES_IN must be a positive integer/,
@@ -399,8 +399,11 @@ describe('JWT configuration (config/env.js)', () => {
     }
   });
 
-  it('rejects empty or whitespace-padded issuer and audience values', () => {
-    assert.throws(() => loadConfig({ JWT_ISSUER: '' }), /JWT_ISSUER must be a non-empty string/);
+  it('uses defaults for empty optional identifiers and rejects whitespace-padded values', () => {
+    const defaults = loadConfig({ JWT_EXPIRES_IN: '', JWT_ISSUER: '', JWT_AUDIENCE: '' });
+    assert.equal(defaults.jwt.expiresIn, '15m');
+    assert.equal(defaults.jwt.issuer, 'book-my-seat');
+    assert.equal(defaults.jwt.audience, 'book-my-seat-client');
     assert.throws(() => loadConfig({ JWT_ISSUER: ' book-my-seat' }), /JWT_ISSUER must be a non-empty string/);
     assert.throws(() => loadConfig({ JWT_AUDIENCE: 'book-my-seat-client ' }), /JWT_AUDIENCE must be a non-empty string/);
   });
