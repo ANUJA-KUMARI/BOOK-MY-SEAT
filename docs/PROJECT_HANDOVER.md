@@ -1,7 +1,7 @@
 # BOOK_MY_SEAT — Project Handover
 
 **Purpose:** Give a new developer an accurate starting point for continuing the existing project.  
-**Current state:** Phase 4 — MySQL Integration is completed and locally verified as reported by the project owner.  
+**Current state:** Phase 5 — Authentication is completed and locally verified as reported by the project owner. Phase 4 is also completed.  
 **Project root (Windows):** `E:\BOOK MY SEAT`
 
 ---
@@ -25,7 +25,7 @@ The frontend is an existing HTML/CSS/Vanilla JavaScript application with a cinem
 | HTTP security headers | `helmet` |
 | Automated tests | Node.js built-in test runner |
 | Development tools | VS Code, Windows PowerShell, MySQL Workbench |
-| Planned authentication | JWT and bcrypt/bcryptjs (Phase 5; not implemented yet) |
+| Authentication | bcrypt, JWT, HttpOnly cookies, CSRF, rate limiting and role authorization (Phase 5 completed) |
 
 The checked-in backend dependencies are declared in `backend/package.json` and locked in `backend/package-lock.json`. Do not add dependencies without an approved task.
 
@@ -58,9 +58,11 @@ BOOK MY SEAT/
 │   └── create_app_user.sql
 └── docs/
     ├── PHASE_4_COMPLETION_REPORT.md
+    ├── PHASE_5_COMPLETION_REPORT.md
     ├── PHASE_4_REPORT.md     Earlier preliminary report; preserved
     ├── PROJECT_HANDOVER.md
     ├── PROJECT_ROADMAP.md
+    ├── PHASE_5_STAGE_2_REPORT.md through PHASE_5_STAGE_6_REPORT.md
     └── phase-reports/
         ├── PHASE_1_REPORT.md
         ├── PHASE_2_REPORT.md
@@ -91,7 +93,7 @@ Browser / API client
 | 2 | Frontend foundation, responsive pages and client-side interactions | **Completed** |
 | 3 | Node/Express backend foundation and initial API | **Completed** |
 | 4 | MySQL integration, read endpoints, readiness, error handling and shutdown | **Completed** |
-| 5 | Authentication | **Next** |
+| 5 | Authentication | **Completed** |
 | 6 | Seat availability and booking workflows | Planned |
 | 7 | Frontend-to-backend integration | Planned |
 | 8 | Admin functionality and management | Planned |
@@ -253,7 +255,7 @@ These are project-owner supplied local results, not a claim that the handover au
 
 - The frontend still uses local sample data. It has not been switched to the backend API; that is Phase 7.
 - Backend read operations are implemented; create/update/delete operations are not.
-- Login/register screens are frontend UI only. No server-side registration, login, password hashing, JWT or protected routes exist yet.
+- Server-side authentication endpoints and security middleware are implemented in Phase 5. The frontend login/register screens have not yet been wired to those endpoints; that work is reserved for Phase 7.
 - No live seat availability, seat locking, booking creation, cancellation, payment or booking history workflow exists yet.
 - `users`, `bookings` and `booking_seats` are schema foundations, not proof that those features are implemented.
 - `backend/data/sample-data.js` is intentionally retained.
@@ -274,4 +276,4 @@ These are project-owner supplied local results, not a claim that the handover au
 
 ## 11. Next step
 
-The next approved development phase is **Phase 5 — Authentication**. Start with a source audit and a small implementation plan before modifying code. Confirm the authentication design in the Phase 1 report, including password hashing, JWT handling, protected routes, cookie/CSRF considerations and login/register rate limiting. Do not assume that a JWT package, bcrypt package or authentication middleware is already installed.
+Phase 5 — Authentication is complete. See `docs/PHASE_5_COMPLETION_REPORT.md` and the six stage reports for implementation details. The project owner reports 200/200 automated tests passing across 48 suites and `npm run db:check` reporting `ALL CHECKS PASSED` on branch `phase-5/stage-6-auth-integration`. The next approved development phase is **Phase 6 — Seat Availability and Booking Management**. Start with a requirements and schema audit; preserve the Phase 6/7/8 boundaries.
