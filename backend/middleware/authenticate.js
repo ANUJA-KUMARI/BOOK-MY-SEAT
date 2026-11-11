@@ -22,7 +22,7 @@ function authenticate(req, res, next) {
 
     if (
       typeof payload.sub !== 'string'
-      || !/^[1-9]\\d*$/.test(payload.sub)
+      || !/^[1-9]\d*$/.test(payload.sub)
       || !Number.isSafeInteger(Number(payload.sub))
       || !['USER', 'ADMIN'].includes(payload.role)
     ) {
