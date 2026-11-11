@@ -62,17 +62,12 @@ describe('JWT settings in config/env.js', () => {
     }
   });
 
-  it('rejects empty or whitespace-padded issuer and audience values', () => {
-    for (const [name, value] of [
-      ['JWT_ISSUER', ''],
-      ['JWT_ISSUER', ' issuer'],
-      ['JWT_AUDIENCE', ''],
-      ['JWT_AUDIENCE', 'audience '],
-    ]) {
-      assert.throws(
-        () => loadConfig({ [name]: value }),
-        new RegExp(name + ' must be a non-empty string'),
-      );
-    }
+  it('uses defaults for empty optional JWT settings and rejects whitespace-padded identifiers', () => {
+    const defaults = loadConfig({ JWT_EXPIRES_IN: '', JWT_ISSUER: '', JWT_AUDIENCE: '' });
+    assert.equal(defaults.jwt.expiresIn, '15m');
+    assert.equal(defaults.jwt.issuer, 'book-my-seat');
+    assert.equal(defaults.jwt.audience, 'book-my-seat-client');
+    assert.throws(() => loadConfig({ JWT_ISSUER: ' issuer' }), /JWT_ISSUER must be a non-empty string/);
+    assert.throws(() => loadConfig({ JWT_AUDIENCE: 'audience ' }), /JWT_AUDIENCE must be a non-empty string/);
   });
 });
