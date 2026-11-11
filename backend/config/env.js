@@ -11,7 +11,7 @@ const ALLOWED_ENVS = ['development', 'test', 'production'];
 function readWholeNumber(env, name, fallback, min, max) {
   const raw = env[name] === undefined || env[name] === '' ? String(fallback) : env[name];
   const value = Number(raw);
-  if (!/^\\d+$/.test(String(raw)) || !Number.isInteger(value) || value < min || value > max) {
+  if (!/^\d+$/.test(String(raw)) || !Number.isInteger(value) || value < min || value > max) {
     throw new Error(`${name} must be a whole number between ${min} and ${max} (got "${raw}")`);
   }
   return value;
@@ -33,7 +33,7 @@ function loadConfig(env = process.env) {
 
   const rawPort = env.PORT === undefined || env.PORT === '' ? '3000' : env.PORT;
   const port = Number(rawPort);
-  if (!/^\\d+$/.test(String(rawPort)) || !Number.isInteger(port) || port > 65535) {
+  if (!/^\d+$/.test(String(rawPort)) || !Number.isInteger(port) || port > 65535) {
     throw new Error(`PORT must be a whole number between 0 and 65535 (got "${rawPort}")`);
   }
 
@@ -63,7 +63,7 @@ function loadConfig(env = process.env) {
     issuer: readNonEmptyString(env, 'JWT_ISSUER', 'book-my-seat'),
     audience: readNonEmptyString(env, 'JWT_AUDIENCE', 'book-my-seat-client'),
   };
-  if (!/^[1-9]\\d*(s|m|h|d)$/.test(jwt.expiresIn)) {
+  if (!/^[1-9]\d*(s|m|h|d)$/.test(jwt.expiresIn)) {
     throw new Error('JWT_EXPIRES_IN must be a positive integer followed by s, m, h, or d (for example 15m)');
   }
   // Never expose the signing secret through config logging or JSON serialization.
