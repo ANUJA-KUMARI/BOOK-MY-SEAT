@@ -91,20 +91,42 @@ async function updateMovie(id, input) {
   } finally { if (connection) connection.release(); }
 }
 async function setMovieActive(id, isActive) {
+  const pool = getPool();
+  let connection;
   try {
-    const pool = getPool();
-    const [rows] = await pool.execute('SELECT id FROM movies WHERE id = ? LIMIT 1', [id]);
-    if (!rows.length) return null;
-    if (!isActive) {
-      const [upcoming] = await pool.execute(
-        "SELECT id FROM shows WHERE movie_id = ? AND status = 'SCHEDULED' AND start_time > UTC_TIMESTAMP() LIMIT 1", [id]);
-      if (upcoming.length) throw new AppError(409, 'This movie has upcoming scheduled shows. Cancel or complete those shows before deactivating it.');
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    // Serialize activation changes with show creation, which also locks the movie row.
+    // Without this lock, a concurrent schedule/deactivation could pass both checks.
+    const [rows] = await connection.execute(
+      'SELECT id FROM movies WHERE id = ? FOR UPDATE', [id]);
+    if (!rows.length) {
+      await connection.commit();
+      return null;
     }
-    await pool.execute('UPDATE movies SET is_active = ? WHERE id = ?', [isActive ? 1 : 0, id]);
+
+    if (!isActive) {
+      const [upcoming] = await connection.execute(
+        "SELECT id FROM shows WHERE movie_id = ? AND status = 'SCHEDULED' AND start_time > UTC_TIMESTAMP() LIMIT 1",
+        [id]);
+      if (upcoming.length) {
+        throw new AppError(409, 'This movie has upcoming scheduled shows. Cancel or complete those shows before deactivating it.');
+      }
+    }
+
+    await connection.execute(
+      'UPDATE movies SET is_active = ? WHERE id = ?', [isActive ? 1 : 0, id]);
+    await connection.commit();
     return { id, is_active: Boolean(isActive) };
   } catch (error) {
+    if (connection) {
+      try { await connection.rollback(); } catch {}
+    }
     if (error instanceof AppError) throw error;
     throw toDatabaseError(error);
+  } finally {
+    if (connection) connection.release();
   }
 }
 async function listGenres() {
