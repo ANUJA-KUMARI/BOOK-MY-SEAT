@@ -136,3 +136,37 @@ export async function getUserBookings({ page = 1, limit = 20 } = {}) {
 export async function getUserBooking(id) {
   return request(`/bookings/${parseId(id)}`);
 }
+
+
+// Phase 8 admin catalogue API. All write operations use the existing same-origin + CSRF protections.
+export async function getAdminMovies({ search = '', status = 'all' } = {}) {
+  const params = new URLSearchParams();
+  if (search.trim()) params.set('search', search.trim());
+  if (status !== 'all') params.set('status', status);
+  const query = params.toString();
+  return request('/admin/movies' + (query ? '?' + query : ''));
+}
+export async function getAdminGenres() {
+  return request('/admin/genres');
+}
+export async function createAdminMovie(movie) {
+  return request('/admin/movies', jsonOptions('POST', movie, true));
+}
+export async function updateAdminMovie(id, movie) {
+  return request('/admin/movies/' + parseId(id), jsonOptions('PATCH', movie, true));
+}
+export async function setAdminMovieActive(id, is_active) {
+  return request('/admin/movies/' + parseId(id) + '/status', jsonOptions('PATCH', { is_active }, true));
+}
+export async function createAdminGenre(name) {
+  return request('/admin/genres', jsonOptions('POST', { name }, true));
+}
+export async function updateAdminGenre(id, name) {
+  return request('/admin/genres/' + parseId(id), jsonOptions('PATCH', { name }, true));
+}
+export async function deleteAdminGenre(id) {
+  return request('/admin/genres/' + parseId(id), {
+    method: 'DELETE',
+    headers: { 'x-csrf-token': csrfToken() },
+  });
+}
