@@ -82,8 +82,13 @@ form.addEventListener('submit', async (event) => {
       loginLink.textContent = ' Go to login';
       status.append(loginLink);
     } else {
-      await loginUser({ email: values.email, password: values.password });
-      window.location.assign('../index.html');
+      const session = await loginUser({ email: values.email, password: values.password });
+      // The API returns the database-backed role with the authenticated user.
+      // Keep one login form; only the post-login destination differs by role.
+      const destination = session.user && session.user.role === 'ADMIN'
+        ? '../admin/index.html'
+        : '../index.html';
+      window.location.assign(destination);
     }
   } catch (error) {
     if (error instanceof ApiError && error.details && typeof error.details === 'object') {
