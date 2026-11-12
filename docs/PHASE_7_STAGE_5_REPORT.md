@@ -2,7 +2,7 @@
 
 **Branch:** `phase-7/stage-5-booking-history-integration`  
 **Base:** `phase-7/stage-4-booking-flow-integration`  
-**Status:** Implementation committed; local automated and browser verification pending.
+**Status:** Completed — project owner reported 12 frontend API tests passing and verified the booking details page in the browser.
 
 ## Objective
 
@@ -85,4 +85,4 @@ Expected frontend API result: **12 tests passed, 0 failed** (8 existing tests pl
 
 Do not create another booking for this verification. The existing confirmed booking is sufficient.
 
-**Exit criteria:** Stage 5 implementation is committed. Mark Stage 5 complete after the local test commands and browser checks above are reported successful.
+**Exit criteria:** Met. The project owner reported 12 frontend API tests passing and confirmed that the booking details page displays the correct booking, show, seat and price information.
