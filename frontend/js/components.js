@@ -2,6 +2,7 @@
 // Every value that comes from data goes through escapeHtml() before it enters an HTML string.
 
 import { escapeHtml, formatDuration, root } from './utils.js';
+import { getCurrentUser, logoutUser, ApiError } from './api.js';
 
 const LOGO_SVG = '<svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#7b1d36"/><path d="M10 6h12a2 2 0 0 1 2 2v11H8V8a2 2 0 0 1 2-2z" fill="#f6eee8"/><rect x="5" y="20" width="22" height="6" rx="2.5" fill="#ec6a7e"/></svg>';
 
@@ -26,7 +27,7 @@ export function renderHeader() {
           ${links.map(([key, href, label]) =>
             `<li><a class="site-nav__link" href="${r}${href}"${key === active ? ' aria-current="page"' : ''}>${label}</a></li>`).join('')}
         </ul>
-        <div class="site-nav__auth">
+        <div class="site-nav__auth" id="site-nav-auth">
           <a class="btn btn--ghost btn--sm" href="${r}pages/login.html">Log in</a>
           <a class="btn btn--primary btn--sm" href="${r}pages/register.html">Register</a>
         </div>
@@ -41,6 +42,29 @@ export function renderHeader() {
   };
   toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+
+  // Resolve the current session without exposing the JWT to JavaScript.
+  const authSlot = el.querySelector('#site-nav-auth');
+  getCurrentUser().then((user) => {
+    if (!user || !authSlot) return;
+    const name = escapeHtml(user.name || 'Account');
+    authSlot.innerHTML = `<span class="site-nav__link" aria-label="Signed in as ${name}">${name}</span>
+      <button class="btn btn--ghost btn--sm" type="button" data-logout>Log out</button>`;
+    authSlot.querySelector('[data-logout]').addEventListener('click', async () => {
+      const button = authSlot.querySelector('[data-logout]');
+      button.disabled = true;
+      try {
+        await logoutUser();
+        window.location.reload();
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = 'Try logout again';
+        if (!(error instanceof ApiError)) console.error('Logout failed.');
+      }
+    });
+  }).catch(() => {
+    // Keep public navigation available if the session lookup is temporarily unavailable.
+  });
 }
 
 export function renderFooter() {
