@@ -1,6 +1,6 @@
 # BOOK_MY_SEAT — Project Roadmap
 
-**Current status:** Phase 4 completed.  
+**Current status:** Phases 1–6 completed; Phase 7 Stage 3 implementation committed and awaiting local verification.  
 **Baseline plan:** The original approved project documentation defines eight phases. This roadmap preserves those eight phases and separately records a possible Phase 9 release/hardening extension.
 
 ---
@@ -13,9 +13,9 @@
 | 2 | Frontend foundation and user-interface implementation | **Completed** |
 | 3 | Backend foundation and REST API | **Completed** |
 | 4 | MySQL database integration | **Completed** |
-| 5 | Authentication and account security | **Next** |
-| 6 | Seat availability and booking management | Planned |
-| 7 | Frontend-to-backend integration | Planned |
+| 5 | Authentication and account security | **Completed** |
+| 6 | Seat availability and booking management | **Completed** |
+| 7 | Frontend-to-backend integration | **In progress — Stage 3 verification pending** |
 | 8 | Admin functionality and management | Planned |
 | 9 | Testing, security, deployment and final release | **Proposed extension — owner approval required** |
 
@@ -210,12 +210,8 @@ Possible scope:
 
 ## 6. Immediate next action
 
-Begin **Phase 5 — Authentication** with a focused audit of:
+Complete **Phase 7 — Stage 3: Authentication UI Integration** verification on branch `phase-7/stage-3-authentication-ui-integration`.
 
-1. `users` table fields and constraints.
-2. Phase 1 authentication decisions in `docs/phase-reports/PHASE_1_REPORT.md`.
-3. Existing login/register frontend forms and validators (do not integrate them yet).
-4. Current dependencies and environment configuration.
-5. Existing middleware, error handling and test conventions.
+The implementation connects the existing login and registration forms to the completed Phase 5 authentication endpoints, adds session-aware shared navigation, and performs CSRF-protected logout. Follow `docs/PHASE_7_STAGE_3_REPORT.md` for the focused tests and browser acceptance checks.
 
-Then prepare a Phase 5 implementation plan for approval before changing application code.
+Do not begin Phase 7 Stage 4 (seat availability and booking UI integration) until Stage 3's local tests, registration/login/session/logout browser checks, backend regression and database checks are reported.
