@@ -122,3 +122,17 @@ export async function createBooking({ showId, seatIds }) {
   const parsedSeatIds = seatIds.map(parseId);
   return request('/bookings', jsonOptions('POST', { showId: parsedShowId, seatIds: parsedSeatIds }, true));
 }
+
+
+/** GET /api/bookings?page=&limit=. Results are scoped to the authenticated user by the API. */
+export async function getUserBookings({ page = 1, limit = 20 } = {}) {
+  const parsedPage = parseId(page);
+  const parsedLimit = parseId(limit);
+  if (parsedLimit > 50) throw new ApiError('Page size cannot exceed 50.', 400);
+  return request(`/bookings?page=${parsedPage}&limit=${parsedLimit}`);
+}
+
+/** GET /api/bookings/:id. The API only returns bookings owned by the current user. */
+export async function getUserBooking(id) {
+  return request(`/bookings/${parseId(id)}`);
+}
