@@ -1,7 +1,7 @@
 # Phase 6 — Stage 4: Booking History and Booking Details
 
 **Branch:** `phase-6/stage-4-booking-history`  
-**Status:** Implementation committed; automated and live read verification pending.
+**Status:** Automated regression and live owner-read/nonexistent-booking verification completed; cross-user live verification remains pending.
 
 ## Objective
 
