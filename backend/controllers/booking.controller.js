@@ -30,10 +30,10 @@ async function getBooking(req, res) {
 
 function parsePage(value, name, fallback, maximum) {
   if (value === undefined) return fallback;
-  if (typeof value !== 'string' || !/^[1-9]\\d*$/.test(value) || !Number.isSafeInteger(Number(value)) || Number(value) > maximum) {
+  if (typeof value !== 'string' || !/^[1-9]\d*$/.test(value) || !Number.isSafeInteger(Number(value)) || Number(value) > maximum) {
     throw new AppError(400, `${name} must be a whole number between 1 and ${maximum}.`);
   }
   return Number(value);
 }
 
-module.exports = { createBooking, listBookings, getBooking };
+module.exports = { createBooking, listBookings, getBooking, _internals: { parsePage } };
