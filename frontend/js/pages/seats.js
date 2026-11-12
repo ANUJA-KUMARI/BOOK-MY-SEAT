@@ -2,7 +2,7 @@
 // Pricing and the real booking are NOT built yet. Nothing is stored in the browser or sent to a server.
 
 import { initCommon, stateHtml } from '../components.js';
-import { getMovie, getMovieShows, ApiError } from '../api.js';
+import { getShowSeats, ApiError } from '../api.js';
 import { escapeHtml, formatLongDate, formatPrice, formatTime, getParam, root } from '../utils.js';
 
 initCommon();
@@ -53,47 +53,11 @@ const showAlert = (text) => { alertEl.textContent = text; alertEl.hidden = false
 const clearAlert = () => { alertEl.textContent = ''; alertEl.hidden = true; };
 
 // ---------- Data loading ----------
-// TEMPORARY (sample data): the API has no "get one show" call yet, and sample show ids start with the
-// movie id (movieId * 1000 + ...). Phase 7 replaces this function with the real API call.
+// One authoritative request supplies show metadata, every seat's live status and DB prices.
 async function loadShow(rawId) {
   const showId = Number(rawId);
-  if (!Number.isInteger(showId) || showId < 1) throw new ApiError('Invalid show id', 400);
-  const movieId = Math.floor(showId / 1000);
-  if (movieId < 1) throw new ApiError('Show not found', 404);
-  const [movie, shows] = await Promise.all([getMovie(movieId), getMovieShows(movieId)]);
-  const show = shows.find((s) => s.id === showId);
-  if (!show) throw new ApiError('Show not found', 404);
-  return { movie, show };
-}
-
-// TEMPORARY (sample data): the real call is GET /api/shows/:id/seats (Phase 7), which returns one entry per seat
-// with its status for this show. Here a fixed pseudo-random pattern marks ~22% of seats as booked, and the
-// pattern differs from show to show.
-function isSampleBooked(showId, seatId) {
-  let h = Math.imul(showId, 2654435761) ^ Math.imul(seatId, 40503);
-  h = Math.imul(h ^ (h >>> 15), 2246822519);
-  return (h >>> 0) % 100 < 22;
-}
-
-async function loadSeats(showId) {
-  const seats = [];
-  ROWS.forEach((row, r) => {
-    for (let n = 1; n <= SEATS_PER_ROW; n += 1) {
-      const id = r * SEATS_PER_ROW + n;
-      seats.push({
-        id, row_label: row, seat_number: n,
-        category: SAMPLE_ROW_CATEGORIES[row],
-        status: isSampleBooked(showId, id) ? 'BOOKED' : 'AVAILABLE',
-      });
-    }
-  });
-  return seats;
-}
-
-// Prices per category (INR) for this show, e.g. { STANDARD: 220, PREMIUM: 320, RECLINER: 520 }.
-// Sample data: taken from the show object. Phase 7: the same values arrive from the API (show_prices).
-async function loadPrices(show) {
-  return { ...show.prices };
+  if (!Number.isSafeInteger(showId) || showId < 1) throw new ApiError('Invalid show id', 400);
+  return getShowSeats(showId);
 }
 
 // ---------- Rendering ----------
@@ -105,7 +69,7 @@ function seatHtml(seat, tabbable) {
   const label = booked ? `Seat ${name}, ${category}, booked` : `Seat ${name}, ${category}, ${formatPrice(prices[seat.category])}`;
   // Booked seats are disabled buttons: not focusable, not clickable. Free seats are toggle buttons.
   return `<button type="button" class="cinema-seat cinema-seat--${booked ? 'booked' : 'available'}${aisle}"
-    data-seat-id="${Number(seat.id)}" data-category="${escapeHtml(seat.category)}" data-row="${ROWS.indexOf(seat.row_label)}" data-col="${Number(seat.seat_number) - 1}"
+    data-seat-id="${Number(seat.id)}" data-category="${escapeHtml(seat.category)}" data-row="${escapeHtml(seat.row_label)}" data-col="${Number(seat.seat_number) - 1}"
     tabindex="${tabbable ? 0 : -1}" aria-label="${escapeHtml(label)}"${booked ? ' disabled' : ' aria-pressed="false"'}>${Number(seat.seat_number)}</button>`;
 }
 
@@ -305,7 +269,7 @@ async function load() {
     selectedIds.clear();
     clearAlert();
     seatsById = new Map(seats.map((s) => [s.id, s]));
-    bookedIds = new Set(seats.filter((s) => s.status === 'BOOKED').map((s) => s.id));
+    bookedIds = new Set(seats.filter((s) => !s.is_available && s.status === 'BOOKED').map((s) => s.id));
     renderSummary({ movie, show });
     renderSeatGrid(seats);
     initPanel();
