@@ -33,7 +33,7 @@ Reviewed admin services use parameterized SQL values. Controllers validate route
 
 ### Data-integrity safeguards
 
-- Movie deactivation is rejected while future scheduled shows exist.
+- Movie deactivation is rejected while future scheduled shows exist. The movie row is locked in a transaction, serializing deactivation with show creation so concurrent requests cannot both pass stale checks.
 - Genre deletion is rejected while movies reference the genre.
 - Show creation checks for overlapping scheduled shows on the same screen.
 - Show creation requires an active movie and a configured screen with seats.
@@ -62,9 +62,9 @@ The admin sidebar layout correction is committed in `frontend/admin/admin.css`. 
 
 ## 5. Findings and limitations
 
-No release-blocking authorization/CSRF omission was identified in the reviewed admin route modules. No schema or seed-data change was made as part of this audit.
+No release-blocking authorization/CSRF omission was identified in the reviewed admin route modules. The audit identified and fixed a concurrency window between movie deactivation and show scheduling by locking the movie row inside a transaction. No schema or seed-data change was made as part of this audit.
 
-This is a source-code review, not a penetration test or a formal security certification. The audit did not independently verify every admin form interaction in a live browser, run the complete frontend test suite, run the database check, or test production deployment settings.
+The movie deactivation concurrency hardening is committed in the audited branch; the owner must run the full regression suite locally to verify it against the configured environment. This is a source-code review, not a penetration test or a formal security certification. The audit did not independently verify every admin form interaction in a live browser, run the complete frontend test suite, run the database check, or test production deployment settings.
 
 ## 6. Required final local acceptance
 
