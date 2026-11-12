@@ -1,6 +1,6 @@
 # BOOK_MY_SEAT — Project Roadmap
 
-**Current status:** Phase 4 completed.  
+**Current status:** Phase 7 in progress — Stages 1–4 completed; Stage 5 implementation committed and awaiting local/browser verification.  
 **Baseline plan:** The original approved project documentation defines eight phases. This roadmap preserves those eight phases and separately records a possible Phase 9 release/hardening extension.
 
 ---
@@ -129,22 +129,21 @@ Planned scope:
 
 ### Phase 7 — Frontend-to-backend integration
 
-**Status: Planned**
+**Status: In progress — Stages 1–4 completed; Stage 5 implementation committed, verification pending.**
 
-**Objective:** Replace frontend sample-data reads with calls to the existing backend API and later booking/auth endpoints.
+**Objective:** Connect the existing frontend to the Express/MySQL APIs while preserving the approved UI and backend security boundaries.
 
-Planned scope:
+Completed stage work:
 
-- Audit the existing frontend API abstraction (the Phase 2 report identifies `js/api.js` as the integration seam).
-- Switch the data source from sample data to the Express API.
-- Connect movie listing, movie details and showtime browsing.
-- Integrate authentication UI with Phase 5 endpoints.
-- Integrate seat availability and booking flows with Phase 6 endpoints.
-- Add loading, empty, validation, authentication and server-error states.
-- Verify existing navigation, responsive behavior and visual design are preserved.
-- Add integration tests for browser/API contracts where appropriate.
+- Stage 1: frontend/API integration audit and plan.
+- Stage 2: movie listing, movie details and showtime browsing integration.
+- Stage 3: login, registration and authenticated-session integration.
+- Stage 4: database-backed seat availability and booking creation UI. The project owner reported 8 frontend API tests passing, backend tests with 0 failures, DB checks all passing, a successful browser booking (C6, C7, C8; ₹660) and seat persistence after refresh.
+- Stage 5: authenticated My Bookings list, pagination and booking detail UI. Implementation committed on `phase-7/stage-5-booking-history-integration`; local/browser verification is pending.
 
-**Important:** The frontend is not currently connected to the database-backed API. Do not describe Phase 7 as complete until the actual browser workflows use the backend.
+The frontend uses same-origin API requests and the existing HttpOnly authentication cookie. Booking ownership and historical price snapshots remain enforced by backend services. Stage 5 adds read-only booking history and detail views; it does not add cancellation or payment processing.
+
+**Exit condition:** Do not mark Phase 7 complete until Stage 5 local tests and browser checks pass and any remaining planned integration work is verified.
 
 ### Phase 8 — Admin functionality and management
 
