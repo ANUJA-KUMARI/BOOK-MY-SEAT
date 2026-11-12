@@ -146,3 +146,23 @@ test('getUserBooking rejects malformed IDs before network access', async () => {
   await assert.rejects(getUserBooking('abc'), (error) => error instanceof ApiError && error.status === 400);
   assert.equal(calls, 0);
 });
+
+
+test('admin show API reads, creates, reprices and changes show status with CSRF', async () => {
+  globalThis.document = { cookie: 'bms_csrf=csrf-stage-five' };
+  const calls = [];
+  globalThis.fetch = async (url, options) => {
+    calls.push({ url, options });
+    return { ok: true, status: options.method === 'POST' ? 201 : 200,
+      json: async () => ({ success: true, data: { shows: [], show: { id: 7 } } }) };
+  };
+  const api = await import('../js/api.js');
+  await api.getAdminShows();
+  await api.createAdminShow({ movie_id: 2, screen_id: 4 });
+  await api.updateAdminShowPrices(7, { STANDARD: 200, PREMIUM: 300, RECLINER: 500 });
+  await api.updateAdminShowStatus(7, 'CANCELLED');
+  assert.deepEqual(calls.map(x => x.url), ['/api/admin/shows','/api/admin/shows','/api/admin/shows/7/prices','/api/admin/shows/7/status']);
+  assert.equal(calls[1].options.headers['x-csrf-token'], 'csrf-stage-five');
+  assert.equal(calls[2].options.method, 'PATCH');
+  assert.equal(calls[3].options.method, 'PATCH');
+});
