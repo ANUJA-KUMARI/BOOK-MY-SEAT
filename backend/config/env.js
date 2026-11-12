@@ -40,13 +40,18 @@ function loadConfig(env = process.env) {
   // MySQL connection settings. Harmless values have defaults. The user name and password are deliberately NOT
   // required here, so the web server code and the configuration tests can load without a database; config/db.js
   // checks that they are present before it connects.
+  const rawDbSsl = env.DB_SSL === undefined || env.DB_SSL === '' ? 'false' : String(env.DB_SSL).toLowerCase();
+  if (!['true', 'false'].includes(rawDbSsl)) throw new Error('DB_SSL must be true or false');
   const db = {
     host: env.DB_HOST || '127.0.0.1', // 127.0.0.1 rather than "localhost": avoids IPv6 lookup problems on Windows
     port: readWholeNumber(env, 'DB_PORT', 3306, 1, 65535),
     user: env.DB_USER,
     database: env.DB_NAME || 'book_my_seat',
     connectionLimit: readWholeNumber(env, 'DB_CONNECTION_LIMIT', 10, 1, 100),
+    ssl: rawDbSsl === 'true',
+    sslCa: env.DB_SSL_CA || undefined,
   };
+  if (db.sslCa && !db.ssl) throw new Error('DB_SSL_CA requires DB_SSL=true');
   // The password is stored as a non-enumerable property, so console.log(config) or JSON.stringify(config) can never
   // print it by accident. Read it explicitly as config.db.password.
   Object.defineProperty(db, 'password', { value: env.DB_PASSWORD, enumerable: false });
