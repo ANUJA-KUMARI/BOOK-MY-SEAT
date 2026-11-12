@@ -2,7 +2,7 @@
 
 **Branch:** `phase-7/stage-2-movie-showtime-integration`  
 **Base:** `phase-7/stage-1-frontend-integration-audit`  
-**Stage status:** Implementation committed; local verification pending.
+**Stage status:** Implementation and local frontend/browser verification completed (project owner confirmed).
 
 ## 1. Objective
 
@@ -96,8 +96,8 @@ npm run db:check
 - [x] Movie list, detail and showtime functions call the live API.
 - [x] Existing page-facing function names and data contracts are preserved.
 - [x] Focused API client tests are added.
-- [ ] Focused frontend API tests pass locally.
-- [ ] Backend regression and database checks pass locally.
-- [ ] Browser smoke checks pass for home, filters, movie detail and showtimes.
+- [x] Focused frontend API tests pass locally (5 passed, 0 failed; project owner supplied terminal result).
+- [ ] Backend regression and database checks for this stage were not separately reconfirmed.
+- [x] Browser smoke checks pass for home, filters, movie detail and showtimes (project owner confirmed completion).
 
-**Stage 2 is implemented. Do not begin Stage 3 until the local test and browser checks above are reported.**
+**Stage 2 is complete.**
