@@ -30,9 +30,12 @@ async function updatePrices(id,prices){
  }catch(e){if(conn)try{await conn.rollback();}catch{}if(e instanceof AppError)throw e;throw toDatabaseError(e);}finally{if(conn)conn.release();}
 }
 async function updateStatus(id,status){
- try{const pool=getPool();const [rows]=await pool.execute('SELECT id,status,start_time FROM shows WHERE id=?',[id]);if(!rows.length)return null;
+ try{const pool=getPool();const [rows]=await pool.execute('SELECT s.id,s.status,s.start_time,m.duration_min FROM shows s JOIN movies m ON m.id=s.movie_id WHERE s.id=?',[id]);if(!rows.length)return null;
  if(rows[0].status!=='SCHEDULED')throw new AppError(409,'Only scheduled shows can change status.');
- if(status==='COMPLETED'&&new Date(toIsoUtc(rows[0].start_time)).getTime()>Date.now())throw new AppError(409,'A future show cannot be marked completed.');
+ const startsAt=new Date(toIsoUtc(rows[0].start_time)).getTime();
+ const endsAt=startsAt+Number(rows[0].duration_min)*60000;
+ if(status==='CANCELLED'&&startsAt<=Date.now())throw new AppError(409,'A show that has already started cannot be cancelled.');
+ if(status==='COMPLETED'&&endsAt>Date.now())throw new AppError(409,'A show can only be marked completed after its scheduled duration has elapsed.');
  await pool.execute('UPDATE shows SET status=? WHERE id=?',[status,id]);return {id,status};
  }catch(e){if(e instanceof AppError)throw e;throw toDatabaseError(e);}
 }
