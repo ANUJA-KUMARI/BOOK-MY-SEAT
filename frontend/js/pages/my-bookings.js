@@ -130,7 +130,7 @@ async function start() {
   }
   const id = getParam('id');
   if (id !== null) {
-    if (!/^[1-9]\\d*$/.test(id) || !Number.isSafeInteger(Number(id))) {
+    if (!/^[1-9]\d*$/.test(id) || !Number.isSafeInteger(Number(id))) {
       statusEl.innerHTML = stateHtml({ title: 'Invalid booking', message: 'The booking link is not valid.', actionHref: 'my-bookings.html', actionLabel: 'Back to bookings' });
       return;
     }
