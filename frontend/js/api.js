@@ -43,6 +43,47 @@ function parseId(value) {
   return id;
 }
 
+function csrfToken() {
+  const match = document.cookie.match(/(?:^|; )bms_csrf=([^;]*)/);
+  return match ? decodeURIComponent(match[1]) : '';
+}
+
+function jsonOptions(method, body, csrf = false) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (csrf) {
+    const token = csrfToken();
+    if (!token) throw new ApiError('Your security token is missing. Refresh the page and try again.', 403);
+    headers['x-csrf-token'] = token;
+  }
+  return { method, headers, body: JSON.stringify(body) };
+}
+
+/** POST /api/auth/register */
+export async function registerUser({ name, email, password }) {
+  return request('/auth/register', jsonOptions('POST', { name, email, password }));
+}
+
+/** POST /api/auth/login. The backend sets HttpOnly JWT and readable CSRF cookies. */
+export async function loginUser({ email, password }) {
+  return request('/auth/login', jsonOptions('POST', { email, password }));
+}
+
+/** GET /api/auth/me. Returns null only when there is no valid session. */
+export async function getCurrentUser() {
+  try {
+    const data = await request('/auth/me');
+    return data.user;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) return null;
+    throw error;
+  }
+}
+
+/** POST /api/auth/logout with the double-submit CSRF token. */
+export async function logoutUser() {
+  return request('/auth/logout', jsonOptions('POST', {}, true));
+}
+
 /** GET /api/movies?search=&genre=&language= */
 export async function getMovies({ search = '', genre = '', language = '' } = {}) {
   const params = new URLSearchParams();
