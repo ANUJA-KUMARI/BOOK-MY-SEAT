@@ -17,10 +17,11 @@ export class ApiError extends Error {
 async function request(path, options = {}) {
   let response;
   try {
+    const { headers: requestHeaders = {}, ...fetchOptions } = options;
     response = await fetch(`${API_BASE}${path}`, {
+      ...fetchOptions,
       credentials: 'same-origin',
-      headers: { Accept: 'application/json', ...(options.headers || {}) },
-      ...options,
+      headers: { Accept: 'application/json', ...requestHeaders },
     });
   } catch {
     throw new ApiError('Could not reach the server. Check your connection and try again.', 0);
