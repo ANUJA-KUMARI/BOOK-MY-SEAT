@@ -18,8 +18,8 @@ async function request(path, options = {}) {
   try {
     response = await fetch(`${API_BASE}${path}`, {
       credentials: 'same-origin',
-      headers: { Accept: 'application/json', ...(options.headers || {}) },
       ...options,
+      headers: { Accept: 'application/json', ...(options.headers || {}) },
     });
   } catch {
     throw new ApiError('Could not connect to the server. Check your connection and try again.', 0);
