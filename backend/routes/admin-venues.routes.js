@@ -1,0 +1,13 @@
+const express=require('express');
+const c=require('../controllers/admin-venues.controller');
+const {requireSameOrigin,requireCsrf}=require('../middleware/csrf');
+const router=express.Router();
+router.get('/cinemas',c.listCinemas);
+router.post('/cinemas',requireSameOrigin,requireCsrf,c.createCinema);
+router.patch('/cinemas/:id',requireSameOrigin,requireCsrf,c.updateCinema);
+router.get('/cinemas/:cinemaId/screens',c.listScreens);
+router.post('/cinemas/:cinemaId/screens',requireSameOrigin,requireCsrf,c.createScreen);
+router.patch('/screens/:id',requireSameOrigin,requireCsrf,c.updateScreen);
+router.get('/screens/:screenId/seats',c.listSeats);
+router.put('/screens/:screenId/seats',requireSameOrigin,requireCsrf,c.replaceSeatLayout);
+module.exports=router;
