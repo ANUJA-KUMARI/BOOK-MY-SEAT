@@ -15,7 +15,7 @@
 | 4 | MySQL database integration | **Completed** |
 | 5 | Authentication and account security | **Completed** |
 | 6 | Seat availability and booking management | **Completed** |
-| 7 | Frontend-to-backend integration | **In progress — Stage 3 verification pending** |
+| 7 | Frontend-to-backend integration | **In progress — Stage 4 verification pending** |
 | 8 | Admin functionality and management | Planned |
 | 9 | Testing, security, deployment and final release | **Proposed extension — owner approval required** |
 
@@ -210,8 +210,8 @@ Possible scope:
 
 ## 6. Immediate next action
 
-Complete **Phase 7 — Stage 3: Authentication UI Integration** verification on branch `phase-7/stage-3-authentication-ui-integration`.
+Complete **Phase 7 — Stage 4: Seat Availability UI Integration** verification on branch `phase-7/stage-4-seat-availability-ui`.
 
-The implementation connects the existing login and registration forms to the completed Phase 5 authentication endpoints, adds session-aware shared navigation, and performs CSRF-protected logout. Follow `docs/PHASE_7_STAGE_3_REPORT.md` for the focused tests and browser acceptance checks.
+The implementation replaces simulated seat availability and prices with the Phase 6 database-backed `GET /api/shows/:id/seats` endpoint. Follow `docs/PHASE_7_STAGE_4_REPORT.md` for focused tests and browser acceptance checks.
 
-Do not begin Phase 7 Stage 4 (seat availability and booking UI integration) until Stage 3's local tests, registration/login/session/logout browser checks, backend regression and database checks are reported.
+Do not begin Phase 7 Stage 5 (booking creation UI integration) until Stage 4's local tests, seat-map browser checks, backend regression and database checks are reported.
