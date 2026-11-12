@@ -9,6 +9,7 @@ const seatRoutes = require('./seat.routes');
 const bookingRoutes = require('./booking.routes');
 const adminRoutes = require('./admin.routes');
 const adminVenuesRoutes = require('./admin-venues.routes');
+const adminShowsRoutes = require('./admin-shows.routes');
 
 const router = express.Router();
 
@@ -19,5 +20,6 @@ router.use('/shows', seatRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/admin', adminRoutes);
 router.use('/admin', adminVenuesRoutes);
+router.use('/admin', adminShowsRoutes);
 
 module.exports = router;
