@@ -26,14 +26,13 @@ async function getDashboardSummary() {
         u.name AS customer_name, u.email AS customer_email,
         m.title AS movie_title, s.start_time AS show_start_time,
         c.name AS cinema_name, sc.name AS screen_name,
-        COUNT(bs.id) AS seat_count
+        (SELECT COUNT(*) FROM booking_seats bs WHERE bs.booking_id = b.id) AS seat_count
         FROM bookings b
         JOIN users u ON u.id = b.user_id
         JOIN shows s ON s.id = b.show_id
         JOIN movies m ON m.id = s.movie_id
         JOIN screens sc ON sc.id = s.screen_id
         JOIN cinemas c ON c.id = sc.cinema_id
-        LEFT JOIN booking_seats bs ON bs.booking_id = b.id
         GROUP BY b.id, b.booking_ref, b.status, b.total_amount, b.created_at,
           u.name, u.email, m.title, s.start_time, c.name, sc.name
         ORDER BY b.created_at DESC, b.id DESC LIMIT 8`),
