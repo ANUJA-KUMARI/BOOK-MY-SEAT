@@ -198,7 +198,7 @@ grid.addEventListener('keydown', (e) => {
   const btn = e.target.closest('.cinema-seat');
   if (!step || !btn) return;
   e.preventDefault(); // stop the arrow key from scrolling the page
-  let r = Number(btn.dataset.row) + step[0];
+  let r = buttonGrid.findIndex((row) => row.includes(btn)) + step[0];
   let c = Number(btn.dataset.col) + step[1];
   while (r >= 0 && r < buttonGrid.length && c >= 0 && c < buttonGrid[r].length) {
     if (!buttonGrid[r][c].disabled) { buttonGrid[r][c].focus(); return; }
