@@ -48,7 +48,8 @@ export function renderHeader() {
   getCurrentUser().then((user) => {
     if (!user || !authSlot) return;
     const name = escapeHtml(user.name || 'Account');
-    authSlot.innerHTML = `<span class="site-nav__link" aria-label="Signed in as ${name}">${name}</span>
+    authSlot.innerHTML = `<a class="btn btn--ghost btn--sm" href="${r}pages/my-bookings.html">My bookings</a>
+      <span class="site-nav__link" aria-label="Signed in as ${name}">${name}</span>
       <button class="btn btn--ghost btn--sm" type="button" data-logout>Log out</button>`;
     authSlot.querySelector('[data-logout]').addEventListener('click', async () => {
       const button = authSlot.querySelector('[data-logout]');
