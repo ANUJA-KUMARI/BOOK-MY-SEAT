@@ -1,6 +1,6 @@
 # BOOK_MY_SEAT — Project Roadmap
 
-**Current status:** Phase 7 Stage 6 — final integration QA tooling and acceptance checklist committed; unified regression and final browser acceptance pending.  
+**Current status:** Phase 7 final unified QA remains to be signed off; Phase 8 admin implementation is present, with final unified regression and release acceptance pending.  
 **Baseline plan:** The original approved project documentation defines eight phases. This roadmap preserves those eight phases and separately records a possible Phase 9 release/hardening extension.
 
 ---
@@ -15,8 +15,8 @@
 | 4 | MySQL database integration | **Completed** |
 | 5 | Authentication and account security | **Completed** |
 | 6 | Seat availability and booking management | **Completed** |
-| 7 | Frontend-to-backend integration | **In progress — Stage 6 final QA** |
-| 8 | Admin functionality and management | Planned |
+| 7 | Frontend-to-backend integration | **Implementation complete; unified QA sign-off pending** |
+| 8 | Admin functionality and management | **Implemented; final unified QA/sign-off pending** |
 | 9 | Testing, security, deployment and final release | **Proposed extension — owner approval required** |
 
 The Phase 1 report records an eight-phase plan. The user handover request mentions a Phase 9 release phase. To avoid silently changing the approved baseline, Phase 9 is shown as a proposed extension after Phase 8, not as an already-approved replacement for the eight-phase plan.
@@ -129,7 +129,7 @@ Planned scope:
 
 ### Phase 7 — Frontend-to-backend integration
 
-**Status: In progress — Stages 1–5 completed; Stage 6 final QA in progress.**
+**Status: Implementation complete; final unified QA/sign-off pending.**
 
 **Objective:** Connect the existing frontend to the Express/MySQL APIs while preserving the approved UI and backend security boundaries.
 
@@ -145,28 +145,27 @@ The frontend uses same-origin API requests and the existing HttpOnly authenticat
 
 **Stage 6 branch:** `phase-7/stage-6-final-integration-qa`.
 
-**Exit condition:** Run `npm run test:all` and `npm run db:check` (or `npm run test:release`) locally, then complete the browser acceptance checklist in `docs/PHASE_7_STAGE_6_REPORT.md`. Mark Phase 7 complete only after these checks have no unresolved failures.
+**Remaining sign-off:** Run `npm run test:all` and `npm run db:check` (or `npm run test:release`) locally, then complete the browser acceptance checklist in `docs/PHASE_7_STAGE_6_REPORT.md`. Do not claim unified release QA is complete until these checks pass.
 
 ### Phase 8 — Admin functionality and management
 
-**Status: Planned**
+**Status: Implemented on `phase-8/stage-6-booking-management-dashboard`; final unified QA/sign-off pending.**
 
 **Objective:** Provide authorized administrative management of the platform's catalogue and operational data.
 
-The Phase 1 report identifies admin management of movies, cinemas, screens, seats, shows, prices and bookings as planned Phase 8 scope. The precise interface and authorization rules should be confirmed before implementation.
+The Phase 1 scope is now implemented in the repository. The admin workspace includes role-protected management screens and APIs for movies/genres, cinemas/screens/seats, shows/pricing, the dashboard, and read-only booking lookup/details.
 
-Potential work within that approved scope:
+Implemented scope:
 
-- Admin-only authorization and protected admin routes.
-- Movie catalogue management.
-- Genre assignment.
+- Admin-only authorization and protected admin routes using the current database role.
+- Movie catalogue and genre assignment.
 - Cinema and screen management.
-- Seat layout management, with integrity checks.
-- Show scheduling and cancellation/management.
-- Show category pricing management.
-- Booking lookup and operational management consistent with user privacy and booking rules.
-- Auditability and validation for administrative changes.
-- Tests proving ordinary users cannot access admin operations.
+- Seat layout management, with safeguards that lock layouts after shows exist.
+- Show scheduling with same-screen overlap checks, status transitions and category pricing.
+- Admin dashboard metrics, recent bookings and upcoming shows.
+- Read-only booking register with search, status filter, pagination and booking details.
+- Server-side input validation, parameterized SQL, same-origin and CSRF checks on admin mutations.
+- Integration tests for admin authorization and CSRF behavior, plus validator and booking-service tests.
 
 **Depends on:** authentication/authorization (Phase 5), booking domain rules (Phase 6), and integrated API/UI foundations (Phase 7).
 
@@ -211,12 +210,4 @@ Possible scope:
 
 ## 6. Immediate next action
 
-After Phase 7 final QA is verified, begin **Phase 8 — Admin functionality and management** with a focused scope/authorization audit of:
-
-1. `users` table fields and constraints.
-2. Phase 1 authentication decisions in `docs/phase-reports/PHASE_1_REPORT.md`.
-3. Existing login/register frontend forms and validators (do not integrate them yet).
-4. Current dependencies and environment configuration.
-5. Existing middleware, error handling and test conventions.
-
-Then prepare a Phase 5 implementation plan for approval before changing application code.
+Complete the **Phase 7 + Phase 8 final QA sign-off**: run `npm run test:all`, `npm run db:check` (or `npm run test:release`), and finish the browser acceptance checklist. Review `docs/PHASE_8_FINAL_AUDIT.md` for the code-audit findings and remaining release checks. Once those pass, mark the implemented phases complete. Phase 9 remains a proposed release/deployment extension and requires owner approval.
