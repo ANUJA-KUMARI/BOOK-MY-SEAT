@@ -30,6 +30,11 @@ GRANT INSERT, UPDATE ON book_my_seat.screens TO 'bms_app'@'localhost';
 GRANT INSERT, DELETE ON book_my_seat.seats TO 'bms_app'@'127.0.0.1';
 GRANT INSERT, DELETE ON book_my_seat.seats TO 'bms_app'@'localhost';
 
+-- The scheduling service locks the selected movie row with SELECT ... FOR UPDATE.
+-- MySQL requires UPDATE privilege for that locking read, even though the query does not modify the movie.
+GRANT UPDATE ON book_my_seat.movies TO 'bms_app'@'127.0.0.1';
+GRANT UPDATE ON book_my_seat.movies TO 'bms_app'@'localhost';
+
 -- Phase 8 Stage 5: show scheduling, status changes and category-wise pricing.
 GRANT INSERT, UPDATE ON book_my_seat.shows TO 'bms_app'@'127.0.0.1';
 GRANT INSERT, UPDATE ON book_my_seat.shows TO 'bms_app'@'localhost';
