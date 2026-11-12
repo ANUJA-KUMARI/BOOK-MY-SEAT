@@ -1,11 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ApiError, getMovies, getMovie, getMovieShows } from '../js/api.js';
+import { ApiError, getMovies, getMovie, getMovieShows, getShowSeats, createBooking } from '../js/api.js';
 
 const originalFetch = globalThis.fetch;
+const originalDocument = globalThis.document;
 
 test.afterEach(() => {
   globalThis.fetch = originalFetch;
+  if (originalDocument === undefined) delete globalThis.document;
+  else globalThis.document = originalDocument;
 });
 
 test('getMovies requests the live API with encoded filters and same-origin credentials', async () => {
@@ -61,4 +64,44 @@ test('API errors preserve the server status and message', async () => {
   });
   await assert.rejects(getMovie(9999), (error) => error instanceof ApiError
     && error.status === 404 && error.message === 'Movie not found.');
+});
+
+
+test('getShowSeats loads database-backed availability for the selected show', async () => {
+  let requestedUrl;
+  globalThis.fetch = async (url) => {
+    requestedUrl = url;
+    return {
+      ok: true, status: 200,
+      json: async () => ({ success: true, data: { show: { id: 1301 }, prices: { STANDARD: 260 }, seats: [{ id: 1, is_available: true }] } }),
+    };
+  };
+  const data = await getShowSeats('1301');
+  assert.equal(requestedUrl, '/api/shows/1301/seats');
+  assert.equal(data.seats[0].is_available, true);
+});
+
+test('createBooking posts selected IDs with same-origin credentials and CSRF header', async () => {
+  globalThis.document = { cookie: 'bms_csrf=csrf-456' };
+  let call;
+  globalThis.fetch = async (url, options) => {
+    call = { url, options };
+    return { ok: true, status: 201, json: async () => ({ success: true, data: { booking: { id: 9 } } }) };
+  };
+  const result = await createBooking({ showId: 1301, seatIds: [4, 5] });
+  assert.equal(call.url, '/api/bookings');
+  assert.equal(call.options.method, 'POST');
+  assert.equal(call.options.credentials, 'same-origin');
+  assert.equal(call.options.headers['x-csrf-token'], 'csrf-456');
+  assert.deepEqual(JSON.parse(call.options.body), { showId: 1301, seatIds: [4, 5] });
+  assert.equal(result.booking.id, 9);
+});
+
+test('createBooking rejects invalid seat counts and missing CSRF before fetch', async () => {
+  globalThis.document = { cookie: '' };
+  let calls = 0;
+  globalThis.fetch = async () => { calls += 1; };
+  await assert.rejects(createBooking({ showId: 1301, seatIds: [] }), (error) => error instanceof ApiError && error.status === 400);
+  await assert.rejects(createBooking({ showId: 1301, seatIds: [1] }), (error) => error instanceof ApiError && error.status === 403);
+  assert.equal(calls, 0);
 });
