@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ApiError, getMovies, getMovie, getMovieShows, getShowSeats, createBooking } from '../js/api.js';
+import { ApiError, getMovies, getMovie, getMovieShows, getShowSeats, createBooking, getUserBookings, getUserBooking } from '../js/api.js';
 
 const originalFetch = globalThis.fetch;
 const originalDocument = globalThis.document;
@@ -103,5 +103,46 @@ test('createBooking rejects invalid seat counts and missing CSRF before fetch', 
   globalThis.fetch = async () => { calls += 1; };
   await assert.rejects(createBooking({ showId: 1301, seatIds: [] }), (error) => error instanceof ApiError && error.status === 400);
   await assert.rejects(createBooking({ showId: 1301, seatIds: [1] }), (error) => error instanceof ApiError && error.status === 403);
+  assert.equal(calls, 0);
+});
+
+
+test('getUserBookings requests the authenticated paginated booking history', async () => {
+  let call;
+  globalThis.fetch = async (url, options) => {
+    call = { url, options };
+    return { ok: true, status: 200, json: async () => ({ success: true, data: { bookings: [{ id: 9 }], pagination: { page: 2, limit: 10, total: 11, total_pages: 2 } } }) };
+  };
+  const result = await getUserBookings({ page: 2, limit: 10 });
+  assert.equal(call.url, '/api/bookings?page=2&limit=10');
+  assert.equal(call.options.credentials, 'same-origin');
+  assert.equal(result.bookings[0].id, 9);
+  assert.equal(result.pagination.total_pages, 2);
+});
+
+test('getUserBookings rejects invalid pagination before network access', async () => {
+  let calls = 0;
+  globalThis.fetch = async () => { calls += 1; };
+  await assert.rejects(getUserBookings({ page: 0 }), (error) => error instanceof ApiError && error.status === 400);
+  await assert.rejects(getUserBookings({ page: 1, limit: 51 }), (error) => error instanceof ApiError && error.status === 400);
+  assert.equal(calls, 0);
+});
+
+test('getUserBooking requests the selected booking detail with same-origin credentials', async () => {
+  let call;
+  globalThis.fetch = async (url, options) => {
+    call = { url, options };
+    return { ok: true, status: 200, json: async () => ({ success: true, data: { booking: { id: 9, booking_ref: 'BMS-TEST' } } }) };
+  };
+  const result = await getUserBooking('9');
+  assert.equal(call.url, '/api/bookings/9');
+  assert.equal(call.options.credentials, 'same-origin');
+  assert.equal(result.booking.booking_ref, 'BMS-TEST');
+});
+
+test('getUserBooking rejects malformed IDs before network access', async () => {
+  let calls = 0;
+  globalThis.fetch = async () => { calls += 1; };
+  await assert.rejects(getUserBooking('abc'), (error) => error instanceof ApiError && error.status === 400);
   assert.equal(calls, 0);
 });
