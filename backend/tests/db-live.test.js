@@ -80,6 +80,45 @@ describe('live MySQL connection', { skip: skipReason }, () => {
     assert.match(grants, /GRANT USAGE ON \*\.\*/);
   });
 
+  it('uses InnoDB and the active-seat unique key to prevent double booking', async () => {
+    const pool = getPool();
+    const [tables] = await pool.execute(
+      `SELECT TABLE_NAME, ENGINE
+       FROM INFORMATION_SCHEMA.TABLES
+       WHERE TABLE_SCHEMA = DATABASE()
+         AND TABLE_NAME IN ('bookings', 'booking_seats')
+       ORDER BY TABLE_NAME`,
+    );
+    assert.deepEqual(tables.map((row) => [row.TABLE_NAME, row.ENGINE]), [
+      ['booking_seats', 'InnoDB'],
+      ['bookings', 'InnoDB'],
+    ]);
+
+    const [indexRows] = await pool.execute(
+      `SELECT SEQ_IN_INDEX, COLUMN_NAME, NON_UNIQUE
+       FROM INFORMATION_SCHEMA.STATISTICS
+       WHERE TABLE_SCHEMA = DATABASE()
+         AND TABLE_NAME = 'booking_seats'
+         AND INDEX_NAME = 'uq_booking_seats_show_seat_active'
+       ORDER BY SEQ_IN_INDEX`,
+    );
+    assert.deepEqual(indexRows.map((row) => row.COLUMN_NAME), ['show_id', 'seat_id', 'active']);
+    assert.ok(indexRows.every((row) => Number(row.NON_UNIQUE) === 0),
+      'the (show_id, seat_id, active) index must be unique');
+  });
+
+  it('keeps released-seat history possible by allowing NULL in booking_seats.active', async () => {
+    const [columns] = await getPool().execute(
+      `SELECT IS_NULLABLE, COLUMN_DEFAULT
+       FROM INFORMATION_SCHEMA.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE()
+         AND TABLE_NAME = 'booking_seats'
+         AND COLUMN_NAME = 'active'`,
+    );
+    assert.equal(columns.length, 1);
+    assert.equal(columns[0].IS_NULLABLE, 'YES');
+  });
+
   it('can close the pool and open a fresh one afterwards', async () => {
     await closePool();
     const facts = await checkConnection(); // getPool() creates a new pool
