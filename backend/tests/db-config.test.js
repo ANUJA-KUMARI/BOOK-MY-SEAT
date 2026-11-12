@@ -85,7 +85,7 @@ describe('example and ignore files protect the credentials', () => {
   const example = fs.readFileSync(path.join(backendDir, '.env.example'), 'utf8');
 
   it('.env.example lists every database variable and ships NO password', () => {
-    for (const name of ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_CONNECTION_LIMIT']) {
+    for (const name of ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_CONNECTION_LIMIT', 'DB_SSL', 'DB_SSL_CA']) {
       assert.match(example, new RegExp(`^${name}=`, 'm'), `${name} is missing from .env.example`);
     }
     assert.match(example, /^DB_PASSWORD=\s*$/m, 'DB_PASSWORD must be empty in the example file');
