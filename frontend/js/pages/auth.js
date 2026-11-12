@@ -1,7 +1,8 @@
 // Shared by login.html and register.html. The form's data-auth attribute ("login" or "register") selects the rules.
-// Phase 3 scope: validation and messages only. Nothing is sent anywhere and nobody is actually logged in.
+// Phase 7: validated forms submit to the same-origin authentication API.
 
 import { initCommon } from '../components.js';
+import { loginUser, registerUser, ApiError } from '../api.js';
 import {
   validateName, validateEmail, validateLoginPassword, validateNewPassword, validateConfirm,
 } from '../validators.js';
@@ -60,9 +61,40 @@ form.addEventListener('submit', (event) => {
     firstInvalid[0].focus();
     return;
   }
-  // Intentionally no fetch() here and the password is never logged or stored.
-  status.textContent = mode === 'register'
-    ? 'Your details look valid. Registration is not connected yet (the backend arrives in Phase 5), so nothing was sent or saved.'
-    : 'Your details look valid. Login is not connected yet (the backend arrives in Phase 5), so nothing was sent and you are not signed in.';
-  status.hidden = false;
+  const submit = form.querySelector('button[type="submit"]');
+  const originalLabel = submit.textContent;
+  submit.disabled = true;
+  submit.textContent = mode === 'register' ? 'Creating account…' : 'Logging in…';
+  status.hidden = true;
+
+  try {
+    const values = Object.fromEntries(fields.map((input) => [input.name, input.value]));
+    if (mode === 'register') {
+      await registerUser({ name: values.name, email: values.email, password: values.password });
+      form.reset();
+      touched.clear();
+      fields.forEach((input) => showError(input, ''));
+      status.textContent = 'Your account has been created. Please log in to continue.';
+      status.hidden = false;
+      const loginLink = document.createElement('a');
+      loginLink.className = 'text-link';
+      loginLink.href = 'login.html';
+      loginLink.textContent = ' Go to login';
+      status.append(loginLink);
+    } else {
+      await loginUser({ email: values.email, password: values.password });
+      window.location.assign('../index.html');
+    }
+  } catch (error) {
+    if (error instanceof ApiError && error.details && typeof error.details === 'object') {
+      for (const input of fields) {
+        if (error.details[input.name]) showError(input, String(error.details[input.name]));
+      }
+    }
+    status.textContent = error.message || 'Something went wrong. Please try again.';
+    status.hidden = false;
+  } finally {
+    submit.disabled = false;
+    submit.textContent = originalLabel;
+  }
 });
