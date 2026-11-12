@@ -127,4 +127,12 @@ async function getBookingById(id) {
   }
 }
 
-module.exports = { listBookings, getBookingById, _internals: { mapAdminBookings, buildFilters, BOOKING_SELECT } };
+module.exports = {
+  listBookings,
+  getBookingById,
+  // Export pure helpers directly for focused unit tests and retain _internals
+  // for existing internal consumers.
+  mapAdminBookings,
+  buildFilters,
+  _internals: { mapAdminBookings, buildFilters, BOOKING_SELECT },
+};
