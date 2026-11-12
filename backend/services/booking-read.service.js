@@ -72,9 +72,9 @@ async function listUserBookings(userId, { page = 1, limit = 20 } = {}) {
       `SELECT bs.booking_id, bs.seat_id, st.row_label, st.seat_number, st.category, bs.price_snapshot
        FROM booking_seats bs
        JOIN seats st ON st.id = bs.seat_id
-       WHERE bs.booking_id IN (?) AND bs.show_id IN (SELECT show_id FROM bookings WHERE user_id = ? AND id IN (?))
+       WHERE bs.booking_id IN (?)
        ORDER BY bs.booking_id, st.row_label, st.seat_number`,
-      [ids, userId, ids],
+      [ids],
     );
     return {
       bookings: mapBookingRows(rows, seatRows),
