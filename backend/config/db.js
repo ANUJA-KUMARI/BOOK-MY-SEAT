@@ -67,7 +67,7 @@ function assertDbConfig(db = config.db) {
 
 /** The mysql2 options for a pool. Pure function (no connection is made), so it is easy to test. */
 function buildPoolOptions(db = config.db) {
-  return {
+  const options = {
     host: db.host,
     port: db.port,
     user: db.user,
@@ -84,6 +84,11 @@ function buildPoolOptions(db = config.db) {
     dateStrings: true, // DATE and DATETIME columns arrive as plain strings, never as Date objects (no time-zone surprises)
     decimalNumbers: true, // DECIMAL columns (prices) arrive as numbers, not as text such as "260.00"
   };
+  if (db.ssl) {
+    options.ssl = { rejectUnauthorized: true };
+    if (db.sslCa) options.ssl.ca = db.sslCa;
+  }
+  return options;
 }
 
 /** Creates a NEW pool (not cached). Use getPool() in normal code. */
