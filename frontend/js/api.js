@@ -61,7 +61,7 @@ export async function getMovie(id) {
 /** GET /api/movies/:id/shows?date=YYYY-MM-DD (upcoming shows, earliest first). */
 export async function getMovieShows(id, { date = '' } = {}) {
   const movieId = parseId(id);
-  if (date && !/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) throw new ApiError('Invalid date', 400);
+  if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new ApiError('Invalid date', 400);
   const query = date ? `?date=${encodeURIComponent(date)}` : '';
   return request(`/movies/${movieId}/shows${query}`);
 }
