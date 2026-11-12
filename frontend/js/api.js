@@ -195,11 +195,16 @@ export async function getAdminDashboard() {
   return request('/admin/dashboard');
 }
 export async function getAdminBookings({ search = '', status = 'all', page = 1, limit = 20 } = {}) {
+  const parsedPage = parseId(page);
+  const parsedLimit = parseId(limit);
+  // Keep the client-side page-size contract aligned with the admin API (maximum 50).
+  if (parsedLimit > 50) throw new ApiError('Page size cannot exceed 50.', 400);
+
   const params = new URLSearchParams();
   if (search.trim()) params.set('search', search.trim());
   if (status !== 'all') params.set('status', status);
-  params.set('page', String(parseId(page)));
-  params.set('limit', String(parseId(limit)));
+  params.set('page', String(parsedPage));
+  params.set('limit', String(parsedLimit));
   return request('/admin/bookings?' + params.toString());
 }
 export async function getAdminBooking(id) {
