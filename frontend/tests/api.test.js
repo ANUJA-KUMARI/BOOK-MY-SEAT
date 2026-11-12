@@ -166,3 +166,38 @@ test('admin show API reads, creates, reprices and changes show status with CSRF'
   assert.equal(calls[2].options.method, 'PATCH');
   assert.equal(calls[3].options.method, 'PATCH');
 });
+
+
+test('admin dashboard and booking management APIs use the protected same-origin endpoints', async () => {
+  const api = await import('../js/api.js');
+  const calls = [];
+  globalThis.fetch = async (url, options) => {
+    calls.push({ url, options });
+    let data = {};
+    if (url === '/api/admin/dashboard') data = { metrics: { total_bookings: 4 } };
+    else if (url.startsWith('/api/admin/bookings?')) data = { bookings: [], pagination: { page: 2, limit: 10, total: 0, total_pages: 0 } };
+    else data = { booking: { id: 12, booking_ref: 'BMS-TEST' } };
+    return { ok: true, status: 200, json: async () => ({ success: true, data }) };
+  };
+
+  const dashboard = await api.getAdminDashboard();
+  const list = await api.getAdminBookings({ search: 'anuja@example.com', status: 'CONFIRMED', page: 2, limit: 10 });
+  const detail = await api.getAdminBooking(12);
+
+  assert.equal(dashboard.metrics.total_bookings, 4);
+  assert.equal(calls[0].url, '/api/admin/dashboard');
+  assert.equal(calls[1].url, '/api/admin/bookings?search=anuja%40example.com&status=CONFIRMED&page=2&limit=10');
+  assert.equal(calls[2].url, '/api/admin/bookings/12');
+  assert.equal(calls.every((call) => call.options.credentials === 'same-origin'), true);
+  assert.equal(list.pagination.page, 2);
+  assert.equal(detail.booking.booking_ref, 'BMS-TEST');
+});
+
+test('admin booking API rejects invalid pagination before network access', async () => {
+  const api = await import('../js/api.js');
+  let calls = 0;
+  globalThis.fetch = async () => { calls += 1; };
+  await assert.rejects(api.getAdminBookings({ page: 0 }), (error) => error instanceof ApiError && error.status === 400);
+  await assert.rejects(api.getAdminBookings({ limit: 51 }), (error) => error instanceof ApiError && error.status === 400);
+  assert.equal(calls, 0);
+});
