@@ -12,6 +12,10 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
+// Render terminates HTTPS at its edge proxy. Trust exactly the first proxy hop in production so
+// secure cookies and IP-based rate limits use the original client connection safely.
+if (config.isProduction) app.set('trust proxy', 1);
+
 // Secure HTTP headers. The frontend loads Google Fonts and may show poster images from https URLs, so image
 // sources allow https. "upgrade-insecure-requests" is switched off because it breaks plain http://localhost.
 app.use(helmet({
