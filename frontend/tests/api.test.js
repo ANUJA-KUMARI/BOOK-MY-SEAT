@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ApiError, getMovies, getMovie, getMovieShows, registerUser, loginUser, getCurrentUser, logoutUser } from '../js/api.js';
+import { ApiError, getMovies, getMovie, getMovieShows, getShowSeats, registerUser, loginUser, getCurrentUser, logoutUser } from '../js/api.js';
 
 const originalFetch = globalThis.fetch;
 const originalDocument = globalThis.document;
