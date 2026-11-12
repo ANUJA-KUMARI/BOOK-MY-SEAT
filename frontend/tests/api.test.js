@@ -1,11 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ApiError, getMovies, getMovie, getMovieShows } from '../js/api.js';
+import { ApiError, getMovies, getMovie, getMovieShows, registerUser, loginUser, getCurrentUser, logoutUser } from '../js/api.js';
 
 const originalFetch = globalThis.fetch;
+const originalDocument = globalThis.document;
 
 test.afterEach(() => {
   globalThis.fetch = originalFetch;
+  if (originalDocument === undefined) delete globalThis.document;
+  else globalThis.document = originalDocument;
 });
 
 test('getMovies requests the live API with encoded filters and same-origin credentials', async () => {
@@ -61,4 +64,69 @@ test('API errors preserve the server status and message', async () => {
   });
   await assert.rejects(getMovie(9999), (error) => error instanceof ApiError
     && error.status === 404 && error.message === 'Movie not found.');
+});
+
+test('registerUser posts registration fields to the live auth API', async () => {
+  let url; let options;
+  globalThis.fetch = async (requestedUrl, requestedOptions) => {
+    url = requestedUrl; options = requestedOptions;
+    return { ok: true, status: 201, json: async () => ({ success: true, data: { user: { id: 8, name: 'Test User' } } }) };
+  };
+  const result = await registerUser({ name: 'Test User', email: 'test@example.com', password: 'safe-password' });
+  assert.equal(url, '/api/auth/register');
+  assert.equal(options.method, 'POST');
+  assert.equal(options.credentials, 'same-origin');
+  assert.equal(options.headers.Accept, 'application/json');
+  assert.equal(options.headers['Content-Type'], 'application/json');
+  assert.deepEqual(JSON.parse(options.body), { name: 'Test User', email: 'test@example.com', password: 'safe-password' });
+  assert.equal(result.user.id, 8);
+});
+
+test('loginUser posts credentials and relies on same-origin session cookies', async () => {
+  let options;
+  globalThis.fetch = async (_url, requestedOptions) => {
+    options = requestedOptions;
+    return { ok: true, status: 200, json: async () => ({ success: true, data: { user: { id: 8 } } }) };
+  };
+  const result = await loginUser({ email: 'test@example.com', password: 'safe-password' });
+  assert.equal(options.method, 'POST');
+  assert.equal(options.credentials, 'same-origin');
+  assert.equal(options.headers.Accept, 'application/json');
+  assert.equal(JSON.parse(options.body).email, 'test@example.com');
+  assert.equal(result.user.id, 8);
+});
+
+test('getCurrentUser reads the authenticated session endpoint', async () => {
+  let url; let options;
+  globalThis.fetch = async (requestedUrl, requestedOptions) => {
+    url = requestedUrl; options = requestedOptions;
+    return { ok: true, status: 200, json: async () => ({ success: true, data: { user: { id: 8, role: 'USER' } } }) };
+  };
+  const result = await getCurrentUser();
+  assert.equal(url, '/api/auth/me');
+  assert.equal(options.method, undefined);
+  assert.equal(options.credentials, 'same-origin');
+  assert.equal(result.user.role, 'USER');
+});
+
+test('logoutUser sends the readable double-submit CSRF cookie as a request header', async () => {
+  globalThis.document = { cookie: 'theme=dark; bms_csrf=csrf-token-123' };
+  let url; let options;
+  globalThis.fetch = async (requestedUrl, requestedOptions) => {
+    url = requestedUrl; options = requestedOptions;
+    return { ok: true, status: 200, json: async () => ({ success: true, data: { message: 'You have been logged out.' } }) };
+  };
+  await logoutUser();
+  assert.equal(url, '/api/auth/logout');
+  assert.equal(options.method, 'POST');
+  assert.equal(options.headers['x-csrf-token'], 'csrf-token-123');
+  assert.equal(options.credentials, 'same-origin');
+});
+
+test('logoutUser refuses to send a request when the CSRF cookie is missing', async () => {
+  globalThis.document = { cookie: '' };
+  let calls = 0;
+  globalThis.fetch = async () => { calls += 1; };
+  await assert.rejects(logoutUser(), (error) => error instanceof ApiError && error.status === 403);
+  assert.equal(calls, 0);
 });
