@@ -26,8 +26,23 @@ describe('database settings in config/env.js', () => {
     const { db } = loadConfig({
       DB_HOST: 'db.example', DB_PORT: '3307', DB_USER: 'bms_app', DB_PASSWORD: 'p#ss word', DB_NAME: 'other', DB_CONNECTION_LIMIT: '5',
     });
-    assert.deepEqual({ ...db }, { host: 'db.example', port: 3307, user: 'bms_app', database: 'other', connectionLimit: 5 });
+    assert.deepEqual({ ...db }, { host: 'db.example', port: 3307, user: 'bms_app', database: 'other', connectionLimit: 5, ssl: false, sslCa: undefined });
     assert.equal(db.password, 'p#ss word');
+  });
+
+  it('enables verified TLS for managed MySQL and accepts a provider CA certificate', () => {
+    const ca = '-----BEGIN CERTIFICATE-----\\nexample-ca\\n-----END CERTIFICATE-----';
+    const { db } = loadConfig({ DB_SSL: 'true', DB_SSL_CA: ca });
+    assert.equal(db.ssl, true);
+    assert.equal(db.sslCa, ca);
+    const { buildPoolOptions } = require('../config/db');
+    const options = buildPoolOptions(db);
+    assert.deepEqual(options.ssl, { rejectUnauthorized: true, ca });
+  });
+
+  it('rejects invalid TLS flags and CA values without TLS', () => {
+    assert.throws(() => loadConfig({ DB_SSL: 'sometimes' }), /DB_SSL must be true or false/);
+    assert.throws(() => loadConfig({ DB_SSL_CA: 'certificate' }), /DB_SSL_CA requires DB_SSL=true/);
   });
 
   it('treats empty values as "not set" (defaults apply)', () => {
