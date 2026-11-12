@@ -33,8 +33,6 @@ async function getDashboardSummary() {
         JOIN movies m ON m.id = s.movie_id
         JOIN screens sc ON sc.id = s.screen_id
         JOIN cinemas c ON c.id = sc.cinema_id
-        GROUP BY b.id, b.booking_ref, b.status, b.total_amount, b.created_at,
-          u.name, u.email, m.title, s.start_time, c.name, sc.name
         ORDER BY b.created_at DESC, b.id DESC LIMIT 8`),
       pool.execute(`SELECT s.id, s.start_time, m.title AS movie_title,
         c.name AS cinema_name, sc.name AS screen_name
