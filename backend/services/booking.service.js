@@ -20,7 +20,7 @@ async function createBooking({ userId, showId, seatIds }) {
 
     const [shows] = await connection.execute(
       `SELECT id, screen_id, start_time, status
-       FROM shows WHERE id = ? LIMIT 1 FOR UPDATE`,
+       FROM shows WHERE id = ? LIMIT 1 FOR SHARE`,
       [showId],
     );
     const show = shows[0];
@@ -32,7 +32,7 @@ async function createBooking({ userId, showId, seatIds }) {
     const placeholders = seatIds.map(() => '?').join(', ');
     const [seats] = await connection.execute(
       `SELECT id, screen_id, row_label, seat_number, category
-       FROM seats WHERE id IN (${placeholders}) ORDER BY id FOR UPDATE`,
+       FROM seats WHERE id IN (${placeholders}) ORDER BY id FOR SHARE`,
       seatIds,
     );
     if (seats.length !== seatIds.length || seats.some((seat) => Number(seat.screen_id) !== Number(show.screen_id))) {
