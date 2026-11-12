@@ -66,6 +66,34 @@ test('API errors preserve the server status and message', async () => {
     && error.status === 404 && error.message === 'Movie not found.');
 });
 
+test('getShowSeats requests authoritative availability for a validated show id', async () => {
+  let url; let options;
+  globalThis.fetch = async (requestedUrl, requestedOptions) => {
+    url = requestedUrl; options = requestedOptions;
+    return {
+      ok: true, status: 200,
+      json: async () => ({ success: true, data: {
+        show: { id: 1301, movie_id: 1, movie_title: 'Midnight Monsoon' },
+        prices: { STANDARD: 260, PREMIUM: 340, RECLINER: 500 },
+        seats: [{ id: 2101, row_label: 'A', seat_number: 1, category: 'STANDARD', is_available: true, status: 'AVAILABLE' }],
+        summary: { total: 1, available: 1, booked: 0 },
+      } }),
+    };
+  };
+  const result = await getShowSeats('1301');
+  assert.equal(url, '/api/shows/1301/seats');
+  assert.equal(options.credentials, 'same-origin');
+  assert.equal(result.seats[0].is_available, true);
+  assert.equal(result.prices.STANDARD, 260);
+});
+
+test('getShowSeats rejects invalid show ids before making a network request', async () => {
+  let calls = 0;
+  globalThis.fetch = async () => { calls += 1; };
+  await assert.rejects(getShowSeats(0), (error) => error instanceof ApiError && error.status === 400);
+  assert.equal(calls, 0);
+});
+
 test('registerUser posts registration fields to the live auth API', async () => {
   let url; let options;
   globalThis.fetch = async (requestedUrl, requestedOptions) => {
