@@ -66,6 +66,11 @@ export async function getMovieShows(id, { date = '' } = {}) {
   return request(`/movies/${movieId}/shows${query}`);
 }
 
+/** GET /api/shows/:id/seats. Returns authoritative seat availability and show prices. */
+export async function getShowSeats(id) {
+  return request(`/shows/${parseId(id)}/seats`);
+}
+
 /** POST /api/auth/register. Registration creates the account but does not sign the user in. */
 export async function registerUser({ name, email, password }) {
   return request('/auth/register', {
