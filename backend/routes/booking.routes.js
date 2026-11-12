@@ -5,6 +5,8 @@ const { requireSameOrigin, requireCsrf } = require('../middleware/csrf');
 
 const router = express.Router();
 
+router.get('/', authenticate, bookingController.listBookings);
+router.get('/:id', authenticate, bookingController.getBooking);
 router.post('/', requireSameOrigin, authenticate, requireCsrf, bookingController.createBooking);
 
 module.exports = router;
