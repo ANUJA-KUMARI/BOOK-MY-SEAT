@@ -195,3 +195,45 @@
 .dashboard-empty{margin:0;padding:1.2rem 0;color:#897c81;font-size:.84rem}
 @media(max-width:1050px){.dashboard-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-lower{grid-template-columns:1fr}}
 @media(max-width:420px){.dashboard-metrics{grid-template-columns:1fr 1fr}.dashboard-metric{min-height:115px;padding:.85rem}.dashboard-booking{align-items:start;flex-direction:column}.dashboard-booking__amount{text-align:left}}
+
+
+/* Sidebar alignment fix: prevent the brand and navigation from shrinking
+   outside the sidebar's grid column at narrower desktop widths/zoom levels. */
+.admin-page {
+  grid-template-columns: minmax(240px, 260px) minmax(0, 1fr);
+}
+.admin-sidebar {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+.admin-brand {
+  min-width: 0;
+  width: 100%;
+}
+.admin-brand__mark {
+  flex: 0 0 42px;
+}
+.admin-brand > span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.admin-nav {
+  min-width: 0;
+  width: 100%;
+}
+.admin-nav__link {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 760px) {
+  .admin-page {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .admin-sidebar {
+    overflow-x: visible;
+  }
+}
