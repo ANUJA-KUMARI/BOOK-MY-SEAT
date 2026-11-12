@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111114">
+  <meta name="description" content="BOOK_MY_SEAT administration workspace.">
+  <title>Admin Dashboard | BOOK_MY_SEAT</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Gloock&display=swap">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-page">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <aside class="admin-sidebar" aria-label="Admin navigation">
+    <a class="admin-brand" href="index.html" aria-label="BOOK_MY_SEAT admin home">
+      <span class="admin-brand__mark" aria-hidden="true">B</span>
+      <span>BOOK<span>_</span>MY<span>_</span>SEAT<small>ADMIN WORKSPACE</small></span>
+    </a>
+    <nav class="admin-nav" aria-label="Admin sections">
+      <a class="admin-nav__link is-active" href="index.html" aria-current="page">Overview</a>
+      <span class="admin-nav__label">MANAGEMENT MODULES</span>
+      <a class="admin-nav__link" href="movies.html">Movies &amp; genres</a>
+      <a class="admin-nav__link" href="venues.html">Cinemas &amp; screens</a>
+      <a class="admin-nav__link" href="shows.html">Shows &amp; pricing</a>
+      <a class="admin-nav__link" href="bookings.html">Bookings</a>
+    </nav>
+    <div class="admin-sidebar__bottom">
+      <a class="admin-back" href="../index.html">← View customer website</a>
+      <button class="btn btn--ghost btn--block" id="admin-logout" type="button">Log out</button>
+    </div>
+  </aside>
+
+  <main class="admin-main" id="main">
+    <header class="admin-topbar">
+      <div>
+        <p class="admin-eyebrow">CONTROL CENTRE</p>
+        <h1>Dashboard</h1>
+      </div>
+      <p class="admin-user" id="admin-user" aria-live="polite">Verifying administrator session…</p>
+    </header>
+
+    <section class="admin-welcome" aria-labelledby="welcome-title">
+      <p class="admin-eyebrow">BOOK_MY_SEAT / ADMIN</p>
+      <h2 id="welcome-title">Welcome to your workspace.</h2>
+      <p>Monitor booking activity, track confirmed revenue and keep cinema operations moving from one place.</p>
+    </section>
+
+    <section class="admin-modules" aria-labelledby="modules-title">
+      <div class="admin-section-heading"><div><p class="admin-eyebrow">LIVE OPERATIONS</p><h2 id="modules-title">Business overview</h2></div><span class="admin-status">Stage 6 · Booking management</span></div>
+      <div class="dashboard-metrics" id="dashboard-metrics" aria-live="polite">
+        <article class="dashboard-metric"><span>Total bookings</span><strong id="metric-total-bookings">—</strong><small>All booking records</small></article>
+        <article class="dashboard-metric"><span>Confirmed bookings</span><strong id="metric-confirmed">—</strong><small>Active reservations</small></article>
+        <article class="dashboard-metric"><span>Cancelled bookings</span><strong id="metric-cancelled">—</strong><small>Cancelled reservations</small></article>
+        <article class="dashboard-metric"><span>Confirmed revenue</span><strong id="metric-revenue">—</strong><small>Excludes cancelled bookings</small></article>
+        <article class="dashboard-metric"><span>Upcoming shows</span><strong id="metric-upcoming-shows">—</strong><small>Scheduled in the future</small></article>
+        <article class="dashboard-metric"><span>Active movies</span><strong id="metric-active-movies">—</strong><small>Available in the catalogue</small></article>
+        <article class="dashboard-metric"><span>Cinemas</span><strong id="metric-cinemas">—</strong><small>Registered locations</small></article>
+        <article class="dashboard-metric"><span>Screens</span><strong id="metric-screens">—</strong><small>Across all cinemas</small></article>
+      </div>
+    </section>
+    <section class="dashboard-lower">
+      <article class="dashboard-panel">
+        <div class="admin-section-heading"><div><p class="admin-eyebrow">LATEST ACTIVITY</p><h2>Recent bookings</h2></div><a class="dashboard-link" href="bookings.html">View all bookings →</a></div>
+        <div class="dashboard-recent" id="dashboard-recent"><p>Loading recent bookings…</p></div>
+      </article>
+      <article class="dashboard-panel">
+        <div class="admin-section-heading"><div><p class="admin-eyebrow">UP NEXT</p><h2>Upcoming shows</h2></div><a class="dashboard-link" href="shows.html">Manage shows →</a></div>
+        <div class="dashboard-upcoming" id="dashboard-upcoming"><p>Loading upcoming shows…</p></div>
+      </article>
+    </section>
+    <section class="admin-modules" aria-labelledby="management-title">
+      <div class="admin-section-heading"><div><p class="admin-eyebrow">PHASE 8</p><h2 id="management-title">Management modules</h2></div></div>
+      <div class="admin-module-grid">
+        <article class="admin-module"><span class="admin-module__number">01</span><h3>Movie catalogue</h3><p>Add, edit, search and deactivate movies; maintain genre assignments.</p><a class="admin-module__state" href="movies.html">Open module →</a></article>
+        <article class="admin-module"><span class="admin-module__number">02</span><h3>Cinemas &amp; screens</h3><p>Manage cinema locations, screens and their seat layouts.</p><a class="admin-module__state" href="venues.html">Open module →</a></article>
+        <article class="admin-module"><span class="admin-module__number">03</span><h3>Shows &amp; pricing</h3><p>Schedule screenings and configure seat-category prices.</p><a class="admin-module__state" href="shows.html">Open module →</a></article>
+        <article class="admin-module"><span class="admin-module__number">04</span><h3>Booking operations</h3><p>Search customer bookings, review seat details and inspect booking status.</p><a class="admin-module__state" href="bookings.html">Open module →</a></article>
+      </div>
+    </section>
+
+    <p class="admin-message" id="admin-message" role="status" hidden></p>
+  </main>
+  <script type="module" src="admin.js"></script>
+</body>
+</html>

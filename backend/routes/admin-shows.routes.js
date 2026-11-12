@@ -1,0 +1,12 @@
+const express=require('express');
+const c=require('../controllers/admin-shows.controller');
+const authenticate=require('../middleware/authenticate');
+const authorize=require('../middleware/authorize');
+const {requireSameOrigin,requireCsrf}=require('../middleware/csrf');
+const router=express.Router();
+router.use(authenticate,authorize('ADMIN'));
+router.get('/shows',c.listShows);
+router.post('/shows',requireSameOrigin,requireCsrf,c.createShow);
+router.patch('/shows/:id/prices',requireSameOrigin,requireCsrf,c.updatePrices);
+router.patch('/shows/:id/status',requireSameOrigin,requireCsrf,c.updateStatus);
+module.exports=router;

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111114"><meta name="description" content="BOOK_MY_SEAT booking operations.">
+<title>Booking Management | BOOK_MY_SEAT</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/tokens.css"><link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="admin.css"><link rel="stylesheet" href="bookings.css">
+</head>
+<body class="admin-page">
+<a class="skip-link" href="#main">Skip to main content</a>
+<aside class="admin-sidebar" aria-label="Admin navigation">
+<a class="admin-brand" href="index.html"><span class="admin-brand__mark">B</span><span>BOOK<span>_</span>MY<span>_</span>SEAT<small>ADMIN WORKSPACE</small></span></a>
+<nav class="admin-nav" aria-label="Admin sections">
+<a class="admin-nav__link" href="index.html">Overview</a><span class="admin-nav__label">MANAGEMENT MODULES</span>
+<a class="admin-nav__link" href="movies.html">Movies &amp; genres</a><a class="admin-nav__link" href="venues.html">Cinemas &amp; screens</a>
+<a class="admin-nav__link" href="shows.html">Shows &amp; pricing</a><a class="admin-nav__link is-active" href="bookings.html" aria-current="page">Bookings</a>
+</nav>
+<div class="admin-sidebar__bottom"><a class="admin-back" href="../index.html">← View customer website</a><button class="btn btn--ghost btn--block" id="admin-logout" type="button">Log out</button></div>
+</aside>
+<main class="admin-main" id="main">
+<header class="admin-topbar"><div><p class="admin-eyebrow">CUSTOMER OPERATIONS</p><h1>Booking management</h1></div><p class="admin-user" id="admin-user">Verifying administrator session…</p></header>
+<p class="admin-message" id="page-message" role="status" hidden></p>
+<section class="booking-toolbar" aria-label="Booking filters">
+<label class="booking-search">Search bookings<input id="booking-search" type="search" maxlength="100" placeholder="Booking reference, customer name or email"></label>
+<label>Status<select id="booking-status"><option value="all">All bookings</option><option value="CONFIRMED">Confirmed</option><option value="CANCELLED">Cancelled</option></select></label>
+<label>Rows<select id="booking-limit"><option value="10">10</option><option value="20" selected>20</option><option value="50">50</option></select></label>
+</section>
+<section class="booking-panel">
+<div class="booking-panel__heading"><div><p class="admin-eyebrow">BOOKING REGISTER</p><h2>All customer bookings</h2></div><span class="admin-status" id="booking-count">Loading…</span></div>
+<div class="booking-table-wrap"><table class="booking-table"><thead><tr><th>Booking</th><th>Customer</th><th>Movie &amp; showtime</th><th>Seats</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody id="booking-table-body"><tr><td colspan="7">Loading bookings…</td></tr></tbody></table></div>
+<div class="booking-pagination"><span id="booking-page-info" aria-live="polite">Page 1</span><div><button class="booking-page-btn" id="booking-prev" type="button" disabled>Previous</button><button class="booking-page-btn" id="booking-next" type="button" disabled>Next</button></div></div>
+</section>
+<dialog class="booking-dialog" id="booking-dialog" aria-labelledby="booking-dialog-title"><div class="booking-dialog__head"><div><p class="admin-eyebrow">BOOKING RECORD</p><h2 id="booking-dialog-title">Booking details</h2></div><button class="booking-close" id="booking-close" type="button" aria-label="Close booking details">×</button></div><div id="booking-detail-content"></div></dialog>
+</main>
+<script type="module" src="bookings.js"></script>
+</body></html>

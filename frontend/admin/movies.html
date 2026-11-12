@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111114">
+  <title>Movie Management | BOOK_MY_SEAT</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Gloock&display=swap">
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="movies.css">
+</head>
+<body class="admin-page">
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <aside class="admin-sidebar" aria-label="Admin navigation">
+    <a class="admin-brand" href="index.html"><span class="admin-brand__mark" aria-hidden="true">B</span><span>BOOK<span>_</span>MY<span>_</span>SEAT<small>ADMIN WORKSPACE</small></span></a>
+    <nav class="admin-nav" aria-label="Admin sections">
+      <a class="admin-nav__link" href="index.html">Overview</a>
+      <span class="admin-nav__label">MANAGEMENT MODULES</span>
+      <a class="admin-nav__link is-active" href="movies.html" aria-current="page">Movies &amp; genres</a>
+      <a class="admin-nav__link" href="venues.html">Cinemas &amp; screens</a>
+      <a class="admin-nav__link" href="shows.html">Shows &amp; pricing</a>
+      <a class="admin-nav__link" href="bookings.html">Bookings</a>
+    </nav>
+    <div class="admin-sidebar__bottom">
+      <a class="admin-back" href="../index.html">← View customer website</a>
+      <button class="btn btn--ghost btn--block" id="admin-logout" type="button">Log out</button>
+    </div>
+  </aside>
+  <main class="admin-main" id="main">
+    <header class="admin-topbar">
+      <div><p class="admin-eyebrow">CATALOGUE MANAGEMENT</p><h1>Movies &amp; genres</h1></div>
+      <p class="admin-user" id="admin-user" aria-live="polite">Verifying administrator session…</p>
+    </header>
+    <p class="admin-message" id="page-message" role="status" hidden></p>
+    <section class="catalog-layout">
+      <div class="catalog-panel">
+        <div class="catalog-heading"><div><p class="admin-eyebrow">MOVIE CATALOGUE</p><h2 id="movie-form-title">Add a movie</h2></div><button class="btn btn--ghost" id="reset-movie-form" type="button">Clear form</button></div>
+        <form id="movie-form" class="catalog-form">
+          <input type="hidden" name="movie_id">
+          <label>Movie title<input name="title" maxlength="200" required placeholder="e.g. Interstellar"></label>
+          <label>Description<textarea name="description" rows="3" maxlength="10000" placeholder="Short synopsis"></textarea></label>
+          <div class="catalog-form__row">
+            <label>Language<input name="language" maxlength="80" placeholder="English"></label>
+            <label>Duration (minutes)<input name="duration_min" type="number" min="1" max="600" required placeholder="120"></label>
+          </div>
+          <div class="catalog-form__row">
+            <label>Certificate<input name="certificate" maxlength="20" placeholder="UA 13+"></label>
+            <label>Release date<input name="release_date" type="date"></label>
+          </div>
+          <label>Poster image URL<input name="poster_url" type="url" maxlength="1000" placeholder="https://…"></label>
+          <fieldset class="genre-picker"><legend>Genres</legend><div id="movie-genre-options" class="genre-options"><p>Loading genres…</p></div></fieldset>
+          <button class="btn btn--primary" id="save-movie" type="submit">Save movie</button>
+          <p class="catalog-hint">Movies with upcoming scheduled shows cannot be deactivated.</p>
+        </form>
+      </div>
+      <div class="catalog-panel catalog-panel--genres">
+        <div class="catalog-heading"><div><p class="admin-eyebrow">CLASSIFICATION</p><h2>Genre library</h2></div></div>
+        <form id="genre-form" class="genre-create"><label for="new-genre">New genre</label><div><input id="new-genre" name="name" maxlength="80" required placeholder="e.g. Sci-Fi"><button class="btn btn--primary" type="submit">Add</button></div></form>
+        <ul id="genre-list" class="genre-list"><li>Loading genres…</li></ul>
+        <p class="catalog-hint">A genre can only be removed after it has been unassigned from every movie.</p>
+      </div>
+    </section>
+    <section class="catalog-panel movie-list-panel">
+      <div class="catalog-heading"><div><p class="admin-eyebrow">DATABASE RECORDS</p><h2>Movie inventory</h2></div><span id="movie-count" class="admin-status">Loading…</span></div>
+      <div class="movie-toolbar">
+        <label class="search-label" for="movie-search">Search movies<input id="movie-search" type="search" placeholder="Search by title"></label>
+        <label class="status-label" for="movie-status">Status<select id="movie-status"><option value="all">All movies</option><option value="active">Active</option><option value="inactive">Inactive</option></select></label>
+      </div>
+      <div class="movie-table-wrap"><table class="movie-table"><thead><tr><th>Movie</th><th>Language</th><th>Duration</th><th>Genres</th><th>Status</th><th>Actions</th></tr></thead><tbody id="movie-table-body"><tr><td colspan="6">Loading movie catalogue…</td></tr></tbody></table></div>
+    </section>
+  </main>
+  <script type="module" src="movies.js"></script>
+</body>
+</html>

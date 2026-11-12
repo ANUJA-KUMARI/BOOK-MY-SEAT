@@ -1,8 +1,7 @@
-// Seat selection page: loads the show (?show=ID), draws the seat layout and lets the user pick seats.
-// Pricing and the real booking are NOT built yet. Nothing is stored in the browser or sent to a server.
+// Seat selection page: loads database-backed show availability and submits confirmed bookings.
 
 import { initCommon, stateHtml } from '../components.js';
-import { getMovie, getMovieShows, ApiError } from '../api.js';
+import { getMovie, getShowSeats, createBooking, ApiError } from '../api.js';
 import { escapeHtml, formatLongDate, formatPrice, formatTime, getParam, root } from '../utils.js';
 
 initCommon();
@@ -19,30 +18,20 @@ const AISLE_AFTER = 5; // the central aisle sits after seat 5
 const MAX_SEATS = 6;
 
 // ---------- Pricing configuration ----------
-// Same shape as the database: every seat has a category (seats.category) and every show has one price per
-// category (show_prices). Prices come from the show itself, so each cinema can charge differently and the
-// movie details page and this page always agree. The row-to-category map below is TEMPORARY sample data
-// (it becomes the seats.category column in Phase 7).
 const CATEGORY_LABELS = { STANDARD: 'Standard', PREMIUM: 'Premium', RECLINER: 'Recliner' };
-const SAMPLE_ROW_CATEGORIES = {
-  A: 'STANDARD', B: 'STANDARD', C: 'STANDARD',
-  D: 'PREMIUM', E: 'PREMIUM', F: 'PREMIUM',
-  G: 'RECLINER', H: 'RECLINER',
-};
 
 // ---------- State ----------
-// selectedIds is the single source of truth for what the user has picked.
-// bookedIds comes from the (sample) server data and is never changed by clicks.
 const selectedIds = new Set();
 let bookedIds = new Set();
 let seatsById = new Map();
-let buttonGrid = []; // buttons by [row][column], used for arrow-key movement
-let panelEls = null; // elements inside the booking panel, created once by initPanel()
-let prices = {}; // price per category for the current show, e.g. { STANDARD: 220, ... }
+let buttonGrid = [];
+let panelEls = null;
+let prices = {};
+let currentShowId = null;
+let bookingInProgress = false;
 
 const seatLabel = (seat) => `${seat.row_label}${seat.seat_number}`;
 
-// Seat limit message: created once, placed above the seat map, and kept visible (sticky) while scrolling the map.
 const alertEl = document.createElement('p');
 alertEl.className = 'seat-alert';
 alertEl.setAttribute('role', 'alert');
@@ -52,48 +41,13 @@ document.querySelector('.seat-main').prepend(alertEl);
 const showAlert = (text) => { alertEl.textContent = text; alertEl.hidden = false; };
 const clearAlert = () => { alertEl.textContent = ''; alertEl.hidden = true; };
 
-// ---------- Data loading ----------
-// TEMPORARY (sample data): the API has no "get one show" call yet, and sample show ids start with the
-// movie id (movieId * 1000 + ...). Phase 7 replaces this function with the real API call.
+// The seat-availability endpoint supplies the real show, seat layout, availability and prices.
 async function loadShow(rawId) {
   const showId = Number(rawId);
-  if (!Number.isInteger(showId) || showId < 1) throw new ApiError('Invalid show id', 400);
-  const movieId = Math.floor(showId / 1000);
-  if (movieId < 1) throw new ApiError('Show not found', 404);
-  const [movie, shows] = await Promise.all([getMovie(movieId), getMovieShows(movieId)]);
-  const show = shows.find((s) => s.id === showId);
-  if (!show) throw new ApiError('Show not found', 404);
-  return { movie, show };
-}
-
-// TEMPORARY (sample data): the real call is GET /api/shows/:id/seats (Phase 7), which returns one entry per seat
-// with its status for this show. Here a fixed pseudo-random pattern marks ~22% of seats as booked, and the
-// pattern differs from show to show.
-function isSampleBooked(showId, seatId) {
-  let h = Math.imul(showId, 2654435761) ^ Math.imul(seatId, 40503);
-  h = Math.imul(h ^ (h >>> 15), 2246822519);
-  return (h >>> 0) % 100 < 22;
-}
-
-async function loadSeats(showId) {
-  const seats = [];
-  ROWS.forEach((row, r) => {
-    for (let n = 1; n <= SEATS_PER_ROW; n += 1) {
-      const id = r * SEATS_PER_ROW + n;
-      seats.push({
-        id, row_label: row, seat_number: n,
-        category: SAMPLE_ROW_CATEGORIES[row],
-        status: isSampleBooked(showId, id) ? 'BOOKED' : 'AVAILABLE',
-      });
-    }
-  });
-  return seats;
-}
-
-// Prices per category (INR) for this show, e.g. { STANDARD: 220, PREMIUM: 320, RECLINER: 520 }.
-// Sample data: taken from the show object. Phase 7: the same values arrive from the API (show_prices).
-async function loadPrices(show) {
-  return { ...show.prices };
+  if (!Number.isSafeInteger(showId) || showId < 1) throw new ApiError('Invalid show id', 400);
+  const availability = await getShowSeats(showId);
+  const movie = await getMovie(availability.show.movie_id);
+  return { movie, show: availability.show, seats: availability.seats, prices: availability.prices };
 }
 
 // ---------- Rendering ----------
@@ -253,11 +207,56 @@ grid.addEventListener('keydown', (e) => {
   }
 });
 
-// Confirm booking is not implemented yet: say so instead of silently doing nothing.
+// Submit selected seat IDs only. The backend owns availability checks and price calculation.
+async function submitBooking() {
+  if (bookingInProgress || selectedIds.size < 1) return;
+  bookingInProgress = true;
+  panelEls.confirm.disabled = true;
+  panelEls.confirm.textContent = 'Confirming…';
+  panelEls.note.hidden = true;
+  try {
+    const result = await createBooking({ showId: currentShowId, seatIds: [...selectedIds] });
+    const booking = result.booking;
+    selectedIds.clear();
+    panelEls.empty.hidden = true;
+    panelEls.details.hidden = true;
+    panelEls.total.textContent = formatPrice(booking.total_amount);
+    panelEls.note.textContent = `Booking confirmed! Reference: ${booking.booking_ref}. Your seats are ${booking.seats.map(seatLabel).join(', ')}.`;
+    panelEls.note.hidden = false;
+    panelEls.confirm.textContent = 'Booking confirmed';
+    bookedIds = new Set([...bookedIds, ...booking.seats.map((seat) => seat.id)]);
+    booking.seats.forEach((seat) => {
+      const button = grid.querySelector(`[data-seat-id="${seat.id}"]`);
+      if (button) {
+        button.disabled = true;
+        button.classList.remove('cinema-seat--selected', 'cinema-seat--available');
+        button.classList.add('cinema-seat--booked');
+        button.removeAttribute('aria-pressed');
+        button.setAttribute('aria-label', `Seat ${seatLabel(seat)}, booked`);
+      }
+    });
+    panelEls.announce.textContent = `Booking confirmed. Reference ${booking.booking_ref}.`;
+  } catch (error) {
+    panelEls.note.textContent = error.message || 'Booking could not be completed. Refresh the seat map and try again.';
+    if (error instanceof ApiError && error.status === 409) {
+      panelEls.note.textContent += ' The latest seat availability may have changed.';
+    }
+    panelEls.note.hidden = false;
+    if (error instanceof ApiError && error.status === 401) {
+      const link = document.createElement('a');
+      link.href = `${root()}pages/login.html`;
+      link.textContent = ' Log in';
+      panelEls.note.append(link);
+    }
+    panelEls.confirm.disabled = false;
+    panelEls.confirm.textContent = 'Confirm booking';
+  } finally {
+    bookingInProgress = false;
+  }
+}
+
 panel.addEventListener('click', (e) => {
-  if (!e.target.closest('#confirm-btn') || panelEls.confirm.disabled) return;
-  panelEls.note.textContent = 'Confirming a booking is not connected yet, so nothing was booked.';
-  panelEls.note.hidden = false;
+  if (e.target.closest('#confirm-btn') && !panelEls.confirm.disabled) submitBooking();
 });
 
 // ---------- Page ----------
@@ -297,15 +296,16 @@ function renderError(err) {
 async function load() {
   message.setAttribute('aria-busy', 'true');
   try {
-    const { movie, show } = await loadShow(getParam('show'));
-    const seats = await loadSeats(show.id);
-    const showPrices = await loadPrices(show);
-    if (!seats.every((seat) => Number.isFinite(showPrices[seat.category]))) throw new Error('A seat category has no price');
+    const { movie, show, seats, prices: showPrices } = await loadShow(getParam('show'));
+    if (!Array.isArray(seats) || !seats.every((seat) => Number.isFinite(showPrices[seat.category]))) {
+      throw new Error('Seat availability or pricing data is incomplete.');
+    }
+    currentShowId = show.id;
     prices = showPrices;
     selectedIds.clear();
     clearAlert();
     seatsById = new Map(seats.map((s) => [s.id, s]));
-    bookedIds = new Set(seats.filter((s) => s.status === 'BOOKED').map((s) => s.id));
+    bookedIds = new Set(seats.filter((seat) => !seat.is_available).map((seat) => seat.id));
     renderSummary({ movie, show });
     renderSeatGrid(seats);
     initPanel();

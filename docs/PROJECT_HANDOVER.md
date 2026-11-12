@@ -1,7 +1,7 @@
 # BOOK_MY_SEAT — Project Handover
 
 **Purpose:** Give a new developer an accurate starting point for continuing the existing project.  
-**Current state:** Phase 4 — MySQL Integration is completed and locally verified as reported by the project owner.  
+**Current state:** Phases 1–6 are completed. Phase 7 customer integration is implemented; unified regression sign-off remains pending. Phase 8 admin modules are implemented on `phase-8/stage-6-booking-management-dashboard`; final unified QA/release acceptance remains pending.  
 **Project root (Windows):** `E:\BOOK MY SEAT`
 
 ---
@@ -25,7 +25,7 @@ The frontend is an existing HTML/CSS/Vanilla JavaScript application with a cinem
 | HTTP security headers | `helmet` |
 | Automated tests | Node.js built-in test runner |
 | Development tools | VS Code, Windows PowerShell, MySQL Workbench |
-| Planned authentication | JWT and bcrypt/bcryptjs (Phase 5; not implemented yet) |
+| Authentication | JWT, bcrypt, HttpOnly session cookie and CSRF protection (Phase 5 completed) |
 
 The checked-in backend dependencies are declared in `backend/package.json` and locked in `backend/package-lock.json`. Do not add dependencies without an approved task.
 
@@ -91,15 +91,15 @@ Browser / API client
 | 2 | Frontend foundation, responsive pages and client-side interactions | **Completed** |
 | 3 | Node/Express backend foundation and initial API | **Completed** |
 | 4 | MySQL integration, read endpoints, readiness, error handling and shutdown | **Completed** |
-| 5 | Authentication | **Next** |
-| 6 | Seat availability and booking workflows | Planned |
-| 7 | Frontend-to-backend integration | Planned |
-| 8 | Admin functionality and management | Planned |
+| 5 | Authentication | **Completed** |
+| 6 | Seat availability and booking workflows | **Completed** |
+| 7 | Frontend-to-backend integration | **Implemented; unified QA sign-off pending** |
+| 8 | Admin functionality and management | **Implemented; final unified QA/sign-off pending** |
 | 9 | Broader testing, security, deployment and final release | **Optional proposed extension; see roadmap** |
 
 The original approved project documentation describes an **eight-phase** plan. Phase 9 is not silently substituted for Phase 8; it is documented as a proposed post-Phase-8 release/hardening stage that requires owner approval if the project is to adopt a nine-phase plan.
 
-## 5. Phase 4 backend and database state
+## 5. Backend, database and customer workflow state
 
 ### 5.1 Implemented read API
 
@@ -251,27 +251,25 @@ These are project-owner supplied local results, not a claim that the handover au
 
 ## 9. Current limitations and cautions
 
-- The frontend still uses local sample data. It has not been switched to the backend API; that is Phase 7.
-- Backend read operations are implemented; create/update/delete operations are not.
-- Login/register screens are frontend UI only. No server-side registration, login, password hashing, JWT or protected routes exist yet.
-- No live seat availability, seat locking, booking creation, cancellation, payment or booking history workflow exists yet.
-- `users`, `bookings` and `booking_seats` are schema foundations, not proof that those features are implemented.
-- `backend/data/sample-data.js` is intentionally retained.
-- Seed data is date-relative. The seed script is not a database reset tool and must not be casually rerun after bookings exist.
+- Phase 7 Stage 6 final QA is not complete until the project owner runs the unified regression command, database check and remaining browser acceptance items.
+- The project is a local demo; no real payment gateway or payment processing is integrated.
+- Phase 8 admin functionality is implemented on `phase-8/stage-6-booking-management-dashboard`; see `PHASE_8_STAGE_6.md` and `PHASE_8_FINAL_AUDIT.md`.
+- `backend/data/sample-data.js` is intentionally retained as legacy/sample data; customer-facing integrated flows use the API.
+- Seed data is date-relative. Do not rerun `seed.sql`, drop tables or reset the database after bookings exist.
+- Keep `backend/.env` local and untracked. Never share database passwords or JWT secrets.
 - The API's `/api/health` route does not replace database readiness checks.
 - Do not change the existing API response contract without coordinating frontend impact.
 
 ## 10. Handover rules for the next developer
 
-1. Read `docs/PHASE_1_REPORT.md` through `docs/phase-reports/PHASE_3_REPORT.md` and `docs/PHASE_4_COMPLETION_REPORT.md` before coding.
-2. Preserve existing application behavior and the approved architecture.
+1. Read the Phase 1–7 reports and this handover before coding.
+2. Preserve the existing cinematic frontend design and approved architecture.
 3. Do not modify schema/seed/verification scripts without an explicit schema-change task and owner approval.
-4. Keep credentials in local `.env`; never commit or share it.
-5. Add tests for new behavior and run the full suite.
-6. Do not begin Phase 6 booking work as part of Phase 5.
-7. Do not connect the frontend to the API until Phase 7 is explicitly started.
-8. Keep a clear distinction between implemented features, schema foundations and future plans.
+4. Keep credentials in local `.env`; never commit or share `.env`.
+5. Run `npm run test:all` from `E:\\BOOK MY SEAT\\backend` and `npm run db:check` before accepting integration changes.
+6. Follow the stage boundaries and do not begin Phase 8 admin CRUD until Phase 7 exits.
+7. Keep a clear distinction between implemented features, verified behavior and future plans.
 
 ## 11. Next step
 
-The next approved development phase is **Phase 5 — Authentication**. Start with a source audit and a small implementation plan before modifying code. Confirm the authentication design in the Phase 1 report, including password hashing, JWT handling, protected routes, cookie/CSRF considerations and login/register rate limiting. Do not assume that a JWT package, bcrypt package or authentication middleware is already installed.
+Complete the final unified QA for the current Phase 7/8 implementation. On branch `phase-8/stage-6-booking-management-dashboard`, run `npm run test:all` and `npm run db:check` (or `npm run test:release`) locally, then complete the browser acceptance checklist in the phase reports. Review `docs/PHASE_8_FINAL_AUDIT.md`. Phase 8 implementation is present; do not recreate its modules. Phase 9 deployment/release hardening remains a proposed extension requiring owner approval.

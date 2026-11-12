@@ -350,3 +350,71 @@ describe('configuration (config/env.js)', () => {
     assert.throws(() => loadConfig({ NODE_ENV: 'staging' }), /NODE_ENV must be one of/);
   });
 });
+
+describe('JWT configuration (config/env.js)', () => {
+  it('provides the approved JWT defaults while keeping the secret optional before auth is enabled', () => {
+    const c = loadConfig({});
+    assert.equal(c.jwt.expiresIn, '15m');
+    assert.equal(c.jwt.issuer, 'book-my-seat');
+    assert.equal(c.jwt.audience, 'book-my-seat-client');
+    assert.equal(c.jwt.secret, undefined);
+  });
+
+  it('accepts a sufficiently long JWT secret and valid custom identifiers', () => {
+    const secret = 'a'.repeat(48);
+    const c = loadConfig({
+      JWT_SECRET: secret,
+      JWT_EXPIRES_IN: '30m',
+      JWT_ISSUER: 'book-my-seat-test',
+      JWT_AUDIENCE: 'book-my-seat-web',
+    });
+    assert.equal(c.jwt.secret, secret);
+    assert.equal(c.jwt.expiresIn, '30m');
+    assert.equal(c.jwt.issuer, 'book-my-seat-test');
+    assert.equal(c.jwt.audience, 'book-my-seat-web');
+  });
+
+  it('rejects short or whitespace-padded JWT secrets', () => {
+    assert.throws(
+      () => loadConfig({ JWT_SECRET: 'too-short' }),
+      /JWT_SECRET must contain at least 32 characters/,
+    );
+    assert.throws(
+      () => loadConfig({ JWT_SECRET: ` ${'a'.repeat(40)}` }),
+      /JWT_SECRET must contain at least 32 characters/,
+    );
+    assert.throws(
+      () => loadConfig({ JWT_SECRET: `${'a'.repeat(40)} ` }),
+      /JWT_SECRET must contain at least 32 characters/,
+    );
+  });
+
+  it('rejects invalid JWT expiry formats', () => {
+    for (const expiresIn of ['0m', '-1m', '15 minutes', '1.5h', '15M', 'abc']) {
+      assert.throws(
+        () => loadConfig({ JWT_EXPIRES_IN: expiresIn }),
+        /JWT_EXPIRES_IN must be a positive integer/,
+        expiresIn,
+      );
+    }
+  });
+
+  it('uses defaults for empty optional identifiers and rejects whitespace-padded values', () => {
+    const defaults = loadConfig({ JWT_EXPIRES_IN: '', JWT_ISSUER: '', JWT_AUDIENCE: '' });
+    assert.equal(defaults.jwt.expiresIn, '15m');
+    assert.equal(defaults.jwt.issuer, 'book-my-seat');
+    assert.equal(defaults.jwt.audience, 'book-my-seat-client');
+    assert.throws(() => loadConfig({ JWT_ISSUER: ' book-my-seat' }), /JWT_ISSUER must be a non-empty string/);
+    assert.throws(() => loadConfig({ JWT_AUDIENCE: 'book-my-seat-client ' }), /JWT_AUDIENCE must be a non-empty string/);
+  });
+
+  it('does not expose the JWT secret through config enumeration or JSON serialization', () => {
+    const secret = 's'.repeat(48);
+    const c = loadConfig({ JWT_SECRET: secret });
+    assert.equal(Object.keys(c.jwt).includes('secret'), false);
+    assert.equal(JSON.stringify(c).includes(secret), false);
+    assert.equal(JSON.stringify(c.jwt).includes(secret), false);
+    assert.equal(c.jwt.secret, secret);
+  });
+});
+
