@@ -31,6 +31,7 @@ async function authenticate(req, res, next) {
     typeof payload.sub !== 'string'
     || !/^[1-9]\d*$/.test(payload.sub)
     || !Number.isSafeInteger(Number(payload.sub))
+    || !['USER', 'ADMIN'].includes(payload.role)
   ) {
     return next(new AppError(401, 'Your session is invalid or has expired. Please log in again.'));
   }
