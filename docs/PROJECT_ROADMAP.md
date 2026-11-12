@@ -1,6 +1,6 @@
 # BOOK_MY_SEAT — Project Roadmap
 
-**Current status:** Phase 7 in progress — Stages 1–4 completed; Stage 5 implementation committed and awaiting local/browser verification.  
+**Current status:** Phase 7 Stage 6 — final integration QA tooling and acceptance checklist committed; unified regression and final browser acceptance pending.  
 **Baseline plan:** The original approved project documentation defines eight phases. This roadmap preserves those eight phases and separately records a possible Phase 9 release/hardening extension.
 
 ---
@@ -13,9 +13,9 @@
 | 2 | Frontend foundation and user-interface implementation | **Completed** |
 | 3 | Backend foundation and REST API | **Completed** |
 | 4 | MySQL database integration | **Completed** |
-| 5 | Authentication and account security | **Next** |
-| 6 | Seat availability and booking management | Planned |
-| 7 | Frontend-to-backend integration | Planned |
+| 5 | Authentication and account security | **Completed** |
+| 6 | Seat availability and booking management | **Completed** |
+| 7 | Frontend-to-backend integration | **In progress — Stage 6 final QA** |
 | 8 | Admin functionality and management | Planned |
 | 9 | Testing, security, deployment and final release | **Proposed extension — owner approval required** |
 
@@ -79,7 +79,7 @@ See `docs/PHASE_4_COMPLETION_REPORT.md`.
 
 ### Phase 5 — Authentication
 
-**Status: Next**
+**Status: Completed**
 
 **Objective:** Implement secure server-side user registration, login, logout and identity verification.
 
@@ -105,7 +105,7 @@ Planned scope, subject to the approved Phase 1 authentication design:
 
 ### Phase 6 — Seat availability and booking management
 
-**Status: Planned**
+**Status: Completed**
 
 **Objective:** Implement correct, persistent booking workflows on top of the Phase 4 schema.
 
@@ -129,7 +129,7 @@ Planned scope:
 
 ### Phase 7 — Frontend-to-backend integration
 
-**Status: In progress — Stages 1–4 completed; Stage 5 implementation committed, verification pending.**
+**Status: In progress — Stages 1–5 completed; Stage 6 final QA in progress.**
 
 **Objective:** Connect the existing frontend to the Express/MySQL APIs while preserving the approved UI and backend security boundaries.
 
@@ -139,11 +139,13 @@ Completed stage work:
 - Stage 2: movie listing, movie details and showtime browsing integration.
 - Stage 3: login, registration and authenticated-session integration.
 - Stage 4: database-backed seat availability and booking creation UI. The project owner reported 8 frontend API tests passing, backend tests with 0 failures, DB checks all passing, a successful browser booking (C6, C7, C8; ₹660) and seat persistence after refresh.
-- Stage 5: authenticated My Bookings list, pagination and booking detail UI. Implementation committed on `phase-7/stage-5-booking-history-integration`; local/browser verification is pending.
+- Stage 5: authenticated My Bookings list, pagination and booking detail UI. The project owner reported 12 frontend API tests passing and verified the booking details page in the browser.
 
-The frontend uses same-origin API requests and the existing HttpOnly authentication cookie. Booking ownership and historical price snapshots remain enforced by backend services. Stage 5 adds read-only booking history and detail views; it does not add cancellation or payment processing.
+The frontend uses same-origin API requests and the existing HttpOnly authentication cookie. Booking ownership and historical price snapshots remain enforced by backend services. Stage 6 adds unified backend/frontend regression commands and the final acceptance checklist; it does not add payment processing.
 
-**Exit condition:** Do not mark Phase 7 complete until Stage 5 local tests and browser checks pass and any remaining planned integration work is verified.
+**Stage 6 branch:** `phase-7/stage-6-final-integration-qa`.
+
+**Exit condition:** Run `npm run test:all` and `npm run db:check` (or `npm run test:release`) locally, then complete the browser acceptance checklist in `docs/PHASE_7_STAGE_6_REPORT.md`. Mark Phase 7 complete only after these checks have no unresolved failures.
 
 ### Phase 8 — Admin functionality and management
 
@@ -209,7 +211,7 @@ Possible scope:
 
 ## 6. Immediate next action
 
-Begin **Phase 5 — Authentication** with a focused audit of:
+After Phase 7 final QA is verified, begin **Phase 8 — Admin functionality and management** with a focused scope/authorization audit of:
 
 1. `users` table fields and constraints.
 2. Phase 1 authentication decisions in `docs/phase-reports/PHASE_1_REPORT.md`.
