@@ -1,7 +1,7 @@
 # BOOK_MY_SEAT — Project Handover
 
 **Purpose:** Give a new developer an accurate starting point for continuing the existing project.  
-**Current state:** Phases 1–6 are completed. Phase 7 Stage 6 final integration QA tooling is committed; unified local regression and final browser acceptance are pending.  
+**Current state:** Phases 1–6 are completed. Phase 7 customer integration is implemented; unified regression sign-off remains pending. Phase 8 admin modules are implemented on `phase-8/stage-6-booking-management-dashboard`; final unified QA/release acceptance remains pending.  
 **Project root (Windows):** `E:\BOOK MY SEAT`
 
 ---
@@ -93,8 +93,8 @@ Browser / API client
 | 4 | MySQL integration, read endpoints, readiness, error handling and shutdown | **Completed** |
 | 5 | Authentication | **Completed** |
 | 6 | Seat availability and booking workflows | **Completed** |
-| 7 | Frontend-to-backend integration | **Stage 6 final QA in progress** |
-| 8 | Admin functionality and management | Planned |
+| 7 | Frontend-to-backend integration | **Implemented; unified QA sign-off pending** |
+| 8 | Admin functionality and management | **Implemented; final unified QA/sign-off pending** |
 | 9 | Broader testing, security, deployment and final release | **Optional proposed extension; see roadmap** |
 
 The original approved project documentation describes an **eight-phase** plan. Phase 9 is not silently substituted for Phase 8; it is documented as a proposed post-Phase-8 release/hardening stage that requires owner approval if the project is to adopt a nine-phase plan.
@@ -253,7 +253,7 @@ These are project-owner supplied local results, not a claim that the handover au
 
 - Phase 7 Stage 6 final QA is not complete until the project owner runs the unified regression command, database check and remaining browser acceptance items.
 - The project is a local demo; no real payment gateway or payment processing is integrated.
-- Phase 8 admin functionality has not been implemented.
+- Phase 8 admin functionality is implemented on `phase-8/stage-6-booking-management-dashboard`; see `PHASE_8_STAGE_6.md` and `PHASE_8_FINAL_AUDIT.md`.
 - `backend/data/sample-data.js` is intentionally retained as legacy/sample data; customer-facing integrated flows use the API.
 - Seed data is date-relative. Do not rerun `seed.sql`, drop tables or reset the database after bookings exist.
 - Keep `backend/.env` local and untracked. Never share database passwords or JWT secrets.
@@ -272,4 +272,4 @@ These are project-owner supplied local results, not a claim that the handover au
 
 ## 11. Next step
 
-Complete **Phase 7 Stage 6 — Final Integration, Regression Testing and QA** on branch `phase-7/stage-6-final-integration-qa`. Follow `docs/PHASE_7_STAGE_6_REPORT.md`. Run `npm run test:all` and `npm run db:check` (or `npm run test:release`) locally, then complete the browser acceptance checklist. Once all exit criteria pass, mark Phase 7 complete and prepare a separate Phase 8 admin-scope and authorization plan.
+Complete the final unified QA for the current Phase 7/8 implementation. On branch `phase-8/stage-6-booking-management-dashboard`, run `npm run test:all` and `npm run db:check` (or `npm run test:release`) locally, then complete the browser acceptance checklist in the phase reports. Review `docs/PHASE_8_FINAL_AUDIT.md`. Phase 8 implementation is present; do not recreate its modules. Phase 9 deployment/release hardening remains a proposed extension requiring owner approval.
