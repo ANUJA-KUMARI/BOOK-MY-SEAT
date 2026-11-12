@@ -32,7 +32,14 @@ function errorHandler(err, req, res, next) {
   if (status >= 500 && !config.isTest) {
     // DatabaseError.cause may contain driver internals. Log only safe, application-authored metadata.
     if (err instanceof DatabaseError) {
-      console.error(`[database] ${err.unavailable ? 'unavailable' : 'error'} (code=${String(err.code || 'UNKNOWN').replace(/[^A-Z0-9_]/gi, '')})`);
+      const cause = err.cause;
+      // Detailed diagnostics stay in the local server terminal; never expose SQL details to the browser.
+      console.error('[DATABASE DIAGNOSTIC]', {
+        code: cause?.code || err.code,
+        message: cause?.sqlMessage || cause?.message || err.message,
+        sqlState: cause?.sqlState || null,
+        table: cause?.table || null,
+      });
     } else {
       console.error('Unhandled application error:', err && err.name ? err.name : 'Error');
     }
