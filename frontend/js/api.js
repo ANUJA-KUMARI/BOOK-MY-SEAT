@@ -181,3 +181,10 @@ export async function createAdminScreen(cinemaId, name) { return request('/admin
 export async function updateAdminScreen(id, name) { return request('/admin/screens/' + parseId(id), jsonOptions('PATCH', { name }, true)); }
 export async function getAdminSeats(screenId) { return request('/admin/screens/' + parseId(screenId) + '/seats'); }
 export async function saveAdminSeatLayout(screenId, rows) { return request('/admin/screens/' + parseId(screenId) + '/seats', jsonOptions('PUT', { rows }, true)); }
+
+
+// Phase 8 Stage 5: administrator show scheduling and category pricing.
+export async function getAdminShows() { return request('/admin/shows'); }
+export async function createAdminShow(show) { return request('/admin/shows', jsonOptions('POST', show, true)); }
+export async function updateAdminShowPrices(id, prices) { return request('/admin/shows/' + parseId(id) + '/prices', jsonOptions('PATCH', { prices }, true)); }
+export async function updateAdminShowStatus(id, status) { return request('/admin/shows/' + parseId(id) + '/status', jsonOptions('PATCH', { status }, true)); }
