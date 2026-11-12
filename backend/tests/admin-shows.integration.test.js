@@ -8,7 +8,7 @@ before(async()=>{originalAuth=auth.findUserById;originalList=service.listShows;o
  service.listShows=async()=>[{id:1,status:'SCHEDULED'}];service.createShow=async input=>({id:2,...input});
  server=await new Promise(resolve=>{const s=app.listen(0,'127.0.0.1',()=>resolve(s));});base='http://127.0.0.1:'+server.address().port;});
 after(async()=>{auth.findUserById=originalAuth;service.listShows=originalList;service.createShow=originalCreate;server.closeAllConnections();await new Promise(resolve=>server.close(resolve));await closePool();});
-function cookie(id){return'bms_token='+signAccessToken({id,role:'IGNORED'})+'; bms_csrf=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';}
+function cookie(id){const role=id===901?'ADMIN':'USER';return'bms_token='+signAccessToken({id,role})+'; bms_csrf=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';}
 async function request(path,{id,method='GET',body}={}){const headers={};if(id)headers.cookie=cookie(id);if(body){headers.origin=base;headers['content-type']='application/json';headers['x-csrf-token']='0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';}return fetch(base+path,{method,headers,body:body?JSON.stringify(body):undefined});}
 describe('Phase 8 Stage 5 show route access',{skip:!config.jwt.secret},()=>{
  it('rejects unauthenticated show inventory access',async()=>assert.equal((await request('/api/admin/shows')).status,401));
