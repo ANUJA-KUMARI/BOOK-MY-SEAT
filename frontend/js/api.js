@@ -170,3 +170,14 @@ export async function deleteAdminGenre(id) {
     headers: { 'x-csrf-token': csrfToken() },
   });
 }
+
+
+// Phase 8 Stage 4: cinema, screen and seat-layout administration.
+export async function getAdminCinemas() { return request('/admin/cinemas'); }
+export async function createAdminCinema(cinema) { return request('/admin/cinemas', jsonOptions('POST', cinema, true)); }
+export async function updateAdminCinema(id, cinema) { return request('/admin/cinemas/' + parseId(id), jsonOptions('PATCH', cinema, true)); }
+export async function getAdminScreens(cinemaId) { return request('/admin/cinemas/' + parseId(cinemaId) + '/screens'); }
+export async function createAdminScreen(cinemaId, name) { return request('/admin/cinemas/' + parseId(cinemaId) + '/screens', jsonOptions('POST', { name }, true)); }
+export async function updateAdminScreen(id, name) { return request('/admin/screens/' + parseId(id), jsonOptions('PATCH', { name }, true)); }
+export async function getAdminSeats(screenId) { return request('/admin/screens/' + parseId(screenId) + '/seats'); }
+export async function saveAdminSeatLayout(screenId, rows) { return request('/admin/screens/' + parseId(screenId) + '/seats', jsonOptions('PUT', { rows }, true)); }
