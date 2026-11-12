@@ -106,3 +106,19 @@ export async function getMovieShows(id, { date = '' } = {}) {
   const query = date ? `?date=${encodeURIComponent(date)}` : '';
   return request(`/movies/${movieId}/shows${query}`);
 }
+
+
+/** GET /api/shows/:id/seats. Returns authoritative seat availability and show prices. */
+export async function getShowSeats(id) {
+  return request(`/shows/${parseId(id)}/seats`);
+}
+
+/** POST /api/bookings. The server validates availability and recalculates all prices. */
+export async function createBooking({ showId, seatIds }) {
+  const parsedShowId = parseId(showId);
+  if (!Array.isArray(seatIds) || seatIds.length < 1 || seatIds.length > 6) {
+    throw new ApiError('Choose between 1 and 6 seats.', 400);
+  }
+  const parsedSeatIds = seatIds.map(parseId);
+  return request('/bookings', jsonOptions('POST', { showId: parsedShowId, seatIds: parsedSeatIds }, true));
+}
