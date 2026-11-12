@@ -1,5 +1,5 @@
-// Seat selection page: loads the show (?show=ID), draws the seat layout and lets the user pick seats.
-// Pricing and the real booking are NOT built yet. Nothing is stored in the browser or sent to a server.
+// Seat selection page: loads authoritative show, seat availability and prices from the backend.
+// Booking creation is handled in a later integration stage.
 
 import { initCommon, stateHtml } from '../components.js';
 import { getShowSeats, ApiError } from '../api.js';
@@ -13,26 +13,16 @@ const layout = document.getElementById('seat-layout');
 const grid = document.getElementById('seat-grid');
 const panel = document.getElementById('booking-panel');
 
-const ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-const SEATS_PER_ROW = 10;
 const AISLE_AFTER = 5; // the central aisle sits after seat 5
 const MAX_SEATS = 6;
 
 // ---------- Pricing configuration ----------
-// Same shape as the database: every seat has a category (seats.category) and every show has one price per
-// category (show_prices). Prices come from the show itself, so each cinema can charge differently and the
-// movie details page and this page always agree. The row-to-category map below is TEMPORARY sample data
-// (it becomes the seats.category column in Phase 7).
+// Category labels are presentation-only. Categories and prices come from the database API.
 const CATEGORY_LABELS = { STANDARD: 'Standard', PREMIUM: 'Premium', RECLINER: 'Recliner' };
-const SAMPLE_ROW_CATEGORIES = {
-  A: 'STANDARD', B: 'STANDARD', C: 'STANDARD',
-  D: 'PREMIUM', E: 'PREMIUM', F: 'PREMIUM',
-  G: 'RECLINER', H: 'RECLINER',
-};
 
 // ---------- State ----------
 // selectedIds is the single source of truth for what the user has picked.
-// bookedIds comes from the (sample) server data and is never changed by clicks.
+// bookedIds comes from the database API and is never changed by clicks.
 const selectedIds = new Set();
 let bookedIds = new Set();
 let seatsById = new Map();
@@ -261,15 +251,17 @@ function renderError(err) {
 async function load() {
   message.setAttribute('aria-busy', 'true');
   try {
-    const { movie, show } = await loadShow(getParam('show'));
-    const seats = await loadSeats(show.id);
-    const showPrices = await loadPrices(show);
-    if (!seats.every((seat) => Number.isFinite(showPrices[seat.category]))) throw new Error('A seat category has no price');
+    const availability = await loadShow(getParam('show'));
+    const { show, seats, prices: showPrices } = availability;
+    const movie = { id: show.movie_id, title: show.movie_title };
+    if (!seats.length || !seats.every((seat) => Number.isFinite(showPrices[seat.category]))) {
+      throw new Error('Seat availability or pricing is incomplete for this show');
+    }
     prices = showPrices;
     selectedIds.clear();
     clearAlert();
-    seatsById = new Map(seats.map((s) => [s.id, s]));
-    bookedIds = new Set(seats.filter((s) => !s.is_available && s.status === 'BOOKED').map((s) => s.id));
+    seatsById = new Map(seats.map((s) => [Number(s.id), s]));
+    bookedIds = new Set(seats.filter((s) => !s.is_available).map((s) => Number(s.id)));
     renderSummary({ movie, show });
     renderSeatGrid(seats);
     initPanel();
