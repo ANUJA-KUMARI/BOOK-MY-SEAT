@@ -2,7 +2,7 @@
 
 **Branch:** `phase-7/stage-4-booking-flow-integration`  
 **Base:** `phase-7/stage-3-authentication-integration`  
-**Status:** Implementation committed; local automated and browser verification pending.
+**Status:** COMPLETE — automated tests, database checks and live browser booking verification passed.
 
 ## Objective
 
@@ -45,7 +45,7 @@ Added tests for:
 - A booking confirmation is shown only after the backend returns success.
 - No payment processing is implemented; this remains a demo booking workflow.
 
-## Local verification required
+## Verification results
 
 From PowerShell:
 
@@ -63,11 +63,14 @@ Then start the backend with `npm start` and verify:
 2. Open a movie, select an upcoming show and continue to seat selection.
 3. Confirm the seat map reflects the database's current availability and category prices.
 4. Select one or more available seats (up to six); confirm the summary updates.
-5. Before submitting, note that confirmation creates a persistent booking record and reserves those seats. Use a test show/seat and obtain project-owner approval before creating the live test booking.
-6. Confirm the response displays a booking reference and the seats become booked.
-7. Reload the same show and confirm the booked seats remain unavailable.
-8. Verify another user cannot view or cancel the booking; verify the existing booking ownership rules remain enforced.
+5. Selected three available seats and submitted the booking.
+6. The server confirmed the booking and returned reference `BMS-MWDCZ60F-1192106C45`; the UI displayed seats C6, C7 and C8 and a server-calculated total of ₹660.
+7. Reloaded the same show; C6, C7 and C8 remained unavailable, confirming database persistence.
+
+The booking is a demo reservation; no real payment was taken. The three seats remain reserved in the local database.
 
 Do not use a show that has started or is within the cancellation cutoff for a test booking intended to be cancelled later. Do not run seed scripts against a database containing bookings.
 
-**Exit criteria:** Local frontend tests and DB checks pass, and the browser confirms real seat availability and booking creation. Do not mark Stage 4 complete until those checks are reported.
+**Exit criteria:** MET. Stage 4 is complete based on the reported automated tests, database checks, successful live booking and seat-persistence verification.
+
+**Remaining scope:** Payment processing is not implemented. Cross-user booking-history authorization and cancellation remain covered by their respective backend stages and are not claimed as newly browser-verified here.
