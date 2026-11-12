@@ -2,8 +2,23 @@
 // Every value that comes from data goes through escapeHtml() before it enters an HTML string.
 
 import { escapeHtml, formatDuration, root } from './utils.js';
+import { getCurrentUser, logoutUser } from './api.js';
 
 const LOGO_SVG = '<svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true" focusable="false"><rect width="32" height="32" rx="8" fill="#7b1d36"/><path d="M10 6h12a2 2 0 0 1 2 2v11H8V8a2 2 0 0 1 2-2z" fill="#f6eee8"/><rect x="5" y="20" width="22" height="6" rx="2.5" fill="#ec6a7e"/></svg>';
+
+function renderAuthLinks(container, user) {
+  const r = root();
+  if (!user) {
+    container.innerHTML = `
+      <a class="btn btn--ghost btn--sm" href="${r}pages/login.html">Log in</a>
+      <a class="btn btn--primary btn--sm" href="${r}pages/register.html">Register</a>`;
+    return;
+  }
+  container.innerHTML = `
+    <span class="site-nav__welcome">Hi, ${escapeHtml(user.name)}</span>
+    <button class="btn btn--ghost btn--sm" type="button" data-auth-logout>Log out</button>
+    <span class="sr-only" role="status" data-auth-message></span>`;
+}
 
 export function renderHeader() {
   const el = document.getElementById('site-header');
@@ -26,12 +41,30 @@ export function renderHeader() {
           ${links.map(([key, href, label]) =>
             `<li><a class="site-nav__link" href="${r}${href}"${key === active ? ' aria-current="page"' : ''}>${label}</a></li>`).join('')}
         </ul>
-        <div class="site-nav__auth">
+        <div class="site-nav__auth" data-auth-nav>
           <a class="btn btn--ghost btn--sm" href="${r}pages/login.html">Log in</a>
           <a class="btn btn--primary btn--sm" href="${r}pages/register.html">Register</a>
         </div>
       </nav>
     </div>`;
+
+  const authNav = el.querySelector('[data-auth-nav]');
+  authNav.addEventListener('click', async (event) => {
+    const logoutButton = event.target.closest('[data-auth-logout]');
+    if (!logoutButton) return;
+    logoutButton.disabled = true;
+    try {
+      await logoutUser();
+      renderAuthLinks(authNav, null);
+    } catch {
+      logoutButton.disabled = false;
+      const message = authNav.querySelector('[data-auth-message]');
+      if (message) message.textContent = 'Could not log out. Please try again.';
+    }
+  });
+  getCurrentUser()
+    .then(({ user }) => renderAuthLinks(authNav, user))
+    .catch(() => renderAuthLinks(authNav, null));
 
   const toggle = el.querySelector('.nav-toggle');
   const nav = el.querySelector('#primary-nav');
