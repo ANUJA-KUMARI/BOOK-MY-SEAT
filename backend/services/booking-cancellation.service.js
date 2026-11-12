@@ -5,6 +5,15 @@ const { toIsoUtc } = require('../utils/time');
 
 const CANCELLATION_CUTOFF_HOURS = 2;
 
+function assertCancellationAllowed(status, cutoffPassed) {
+  if (status !== 'CONFIRMED') {
+    throw new AppError(409, 'Only confirmed bookings can be cancelled.');
+  }
+  if (cutoffPassed) {
+    throw new AppError(409, 'Bookings can only be cancelled more than 2 hours before showtime.');
+  }
+}
+
 async function cancelUserBooking(userId, bookingId) {
   const pool = getPool();
   let connection;
@@ -75,5 +84,5 @@ async function cancelUserBooking(userId, bookingId) {
 
 module.exports = {
   cancelUserBooking,
-  _internals: { CANCELLATION_CUTOFF_HOURS },
+  _internals: { CANCELLATION_CUTOFF_HOURS, assertCancellationAllowed },
 };
