@@ -1,7 +1,10 @@
 const express=require('express');
 const c=require('../controllers/admin-venues.controller');
 const {requireSameOrigin,requireCsrf}=require('../middleware/csrf');
+const authenticate=require('../middleware/authenticate');
+const authorize=require('../middleware/authorize');
 const router=express.Router();
+router.use(authenticate,authorize('ADMIN'));
 router.get('/cinemas',c.listCinemas);
 router.post('/cinemas',requireSameOrigin,requireCsrf,c.createCinema);
 router.patch('/cinemas/:id',requireSameOrigin,requireCsrf,c.updateCinema);
