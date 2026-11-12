@@ -1,7 +1,7 @@
 # BOOK_MY_SEAT — Project Handover
 
 **Purpose:** Give a new developer an accurate starting point for continuing the existing project.  
-**Current state:** Phases 1–6 are completed. Phase 7 customer integration is implemented; unified regression sign-off remains pending. Phase 8 admin modules are implemented on `phase-8/stage-6-booking-management-dashboard`; final unified QA/release acceptance remains pending.  
+**Current state:** All eight planned development phases are implemented and integrated into `main`. The owner reported successful release regression and local browser verification. Public deployment is intentionally deferred to avoid hosting costs.  
 **Project root (Windows):** `E:\BOOK MY SEAT`
 
 ---
@@ -57,14 +57,18 @@ BOOK MY SEAT/
 │   ├── verify_seed.sql
 │   └── create_app_user.sql
 └── docs/
-    ├── PHASE_4_COMPLETION_REPORT.md
-    ├── PHASE_4_REPORT.md     Earlier preliminary report; preserved
     ├── PROJECT_HANDOVER.md
     ├── PROJECT_ROADMAP.md
+    ├── RENDER_DEPLOYMENT_GUIDE.md
     └── phase-reports/
         ├── PHASE_1_REPORT.md
         ├── PHASE_2_REPORT.md
-        └── PHASE_3_REPORT.md
+        ├── PHASE_3_REPORT.md
+        ├── PHASE_4_REPORT.md
+        ├── PHASE_5_REPORT.md
+        ├── PHASE_6_REPORT.md
+        ├── PHASE_7_REPORT.md
+        └── PHASE_8_REPORT.md
 ```
 
 ### Request path
@@ -149,7 +153,7 @@ The schema and SQL scripts are in `database/`. They are authoritative; do not ca
 - SIGINT/SIGTERM trigger idempotent graceful shutdown of the HTTP server and database pool.
 - Show timestamps use a UTC storage convention; the optional date filter is based on the India calendar day.
 
-Detailed implementation and schema notes are in `PHASE_4_COMPLETION_REPORT.md`.
+Detailed implementation and schema notes are in `phase-reports/PHASE_4_REPORT.md`.
 
 ## 6. Local setup
 
@@ -238,7 +242,7 @@ Useful local URLs when using the default port:
 
 ## 8. Verified Phase 4 results
 
-The project owner reports that the local Windows environment completed the following:
+The project owner previously reported that the local Windows environment completed the following:
 
 - Windows development machine.
 - Node.js v22.21.0.
@@ -251,9 +255,9 @@ These are project-owner supplied local results, not a claim that the handover au
 
 ## 9. Current limitations and cautions
 
-- Phase 7 Stage 6 final QA is not complete until the project owner runs the unified regression command, database check and remaining browser acceptance items.
+- The project owner later reported successful release regression testing before deployment preparation; deployment itself was intentionally paused to avoid ongoing hosting costs.
 - The project is a local demo; no real payment gateway or payment processing is integrated.
-- Phase 8 admin functionality is implemented on `phase-8/stage-6-booking-management-dashboard`; see `PHASE_8_STAGE_6.md` and `PHASE_8_FINAL_AUDIT.md`.
+- Phase 8 admin functionality is documented in `phase-reports/PHASE_8_REPORT.md`.
 - `backend/data/sample-data.js` is intentionally retained as legacy/sample data; customer-facing integrated flows use the API.
 - Seed data is date-relative. Do not rerun `seed.sql`, drop tables or reset the database after bookings exist.
 - Keep `backend/.env` local and untracked. Never share database passwords or JWT secrets.
@@ -262,14 +266,14 @@ These are project-owner supplied local results, not a claim that the handover au
 
 ## 10. Handover rules for the next developer
 
-1. Read the Phase 1–7 reports and this handover before coding.
+1. Read the consolidated Phase 1–8 reports and this handover before coding.
 2. Preserve the existing cinematic frontend design and approved architecture.
 3. Do not modify schema/seed/verification scripts without an explicit schema-change task and owner approval.
 4. Keep credentials in local `.env`; never commit or share `.env`.
 5. Run `npm run test:all` from `E:\\BOOK MY SEAT\\backend` and `npm run db:check` before accepting integration changes.
 6. Follow the stage boundaries and do not begin Phase 8 admin CRUD until Phase 7 exits.
-7. Keep a clear distinction between implemented features, verified behavior and future plans.
+7. Keep a clear distinction between implemented features, owner-reported verification and future plans.
 
 ## 11. Next step
 
-Complete the final unified QA for the current Phase 7/8 implementation. On branch `phase-8/stage-6-booking-management-dashboard`, run `npm run test:all` and `npm run db:check` (or `npm run test:release`) locally, then complete the browser acceptance checklist in the phase reports. Review `docs/PHASE_8_FINAL_AUDIT.md`. Phase 8 implementation is present; do not recreate its modules. Phase 9 deployment/release hardening remains a proposed extension requiring owner approval.
+All eight development phases are consolidated in `docs/phase-reports/`. The application remains intended for local demonstration; deployment/release hardening is optional and requires a separate owner decision.
