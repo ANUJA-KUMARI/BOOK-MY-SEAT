@@ -188,3 +188,20 @@ export async function getAdminShows() { return request('/admin/shows'); }
 export async function createAdminShow(show) { return request('/admin/shows', jsonOptions('POST', show, true)); }
 export async function updateAdminShowPrices(id, prices) { return request('/admin/shows/' + parseId(id) + '/prices', jsonOptions('PATCH', { prices }, true)); }
 export async function updateAdminShowStatus(id, status) { return request('/admin/shows/' + parseId(id) + '/status', jsonOptions('PATCH', { status }, true)); }
+
+
+// Phase 8 Stage 6: administrator dashboard and booking operations.
+export async function getAdminDashboard() {
+  return request('/admin/dashboard');
+}
+export async function getAdminBookings({ search = '', status = 'all', page = 1, limit = 20 } = {}) {
+  const params = new URLSearchParams();
+  if (search.trim()) params.set('search', search.trim());
+  if (status !== 'all') params.set('status', status);
+  params.set('page', String(parseId(page)));
+  params.set('limit', String(parseId(limit)));
+  return request('/admin/bookings?' + params.toString());
+}
+export async function getAdminBooking(id) {
+  return request('/admin/bookings/' + parseId(id));
+}
