@@ -25,12 +25,12 @@ async function cancelUserBooking(userId, bookingId) {
 
     // Lock the owner's booking first. A concurrent cancellation waits here and then
     // observes CANCELLED instead of releasing the same seats twice.
+    // Lock only the booking row. Locking a JOIN would also request a lock on
+    // shows, which would require broader UPDATE privileges for the app account.
     const [rows] = await connection.execute(
-      `SELECT b.id, b.status, s.start_time,
-              (s.start_time <= DATE_ADD(UTC_TIMESTAMP(), INTERVAL 2 HOUR)) AS cutoff_passed
-       FROM bookings b
-       JOIN shows s ON s.id = b.show_id
-       WHERE b.id = ? AND b.user_id = ?
+      `SELECT id, status, show_id
+       FROM bookings
+       WHERE id = ? AND user_id = ?
        LIMIT 1
        FOR UPDATE`,
       [bookingId, userId],
@@ -43,7 +43,20 @@ async function cancelUserBooking(userId, bookingId) {
     if (booking.status !== 'CONFIRMED') {
       throw new AppError(409, 'Only confirmed bookings can be cancelled.');
     }
-    if (Number(booking.cutoff_passed) === 1) {
+
+    // Read showtime without locking or modifying the shows table.
+    const [showRows] = await connection.execute(
+      `SELECT start_time,
+              (start_time <= DATE_ADD(UTC_TIMESTAMP(), INTERVAL 2 HOUR)) AS cutoff_passed
+       FROM shows
+       WHERE id = ?
+       LIMIT 1`,
+      [booking.show_id],
+    );
+    if (showRows.length === 0) {
+      throw new AppError(404, 'Show not found.');
+    }
+    if (Number(showRows[0].cutoff_passed) === 1) {
       throw new AppError(409, 'Bookings can only be cancelled more than 2 hours before showtime.');
     }
 
