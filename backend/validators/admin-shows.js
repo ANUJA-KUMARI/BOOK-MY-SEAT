@@ -9,7 +9,7 @@ function startTime(value){
 }
 function prices(value){
  object(value);const result={};
- for(const category of CATEGORIES){const n=value[category];if(typeof n!=='number'||!Number.isFinite(n)||n<0||n>999999.99||Math.round(n*100)!==n*100)throw new AppError(400,category+' price must be a number from 0 to 999999.99 with at most two decimal places.');result[category]=n;}
+ for(const category of CATEGORIES){const n=value[category];if(typeof n!=='number'||!Number.isFinite(n)||n<0||n>999999.99||Number(n.toFixed(2))!==n)throw new AppError(400,category+' price must be a number from 0 to 999999.99 with at most two decimal places.');result[category]=n;}
  if(Object.keys(value).some(k=>!CATEGORIES.includes(k)))throw new AppError(400,'Only STANDARD, PREMIUM and RECLINER prices are supported.');
  return result;
 }
