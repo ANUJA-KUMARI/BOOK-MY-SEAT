@@ -1,5 +1,5 @@
 import { initCommon, stateHtml } from '../components.js';
-import { getCurrentUser, getUserBookings, getUserBooking, ApiError } from '../api.js';
+import { getCurrentUser, getUserBookings, getUserBooking, cancelUserBooking, ApiError } from '../api.js';
 import { escapeHtml, formatLongDate, formatPrice, formatTime, getParam, root } from '../utils.js';
 
 initCommon();
@@ -10,6 +10,57 @@ const paginationEl = document.getElementById('booking-pagination');
 const pageTitle = document.getElementById('page-title');
 const pageIntro = document.getElementById('page-intro');
 const PAGE_SIZE = 10;
+
+const CANCELLATION_CUTOFF_MS = 2 * 60 * 60 * 1000;
+
+function cancellationState(booking) {
+  if (String(booking.status).toUpperCase() !== 'CONFIRMED') return 'not-confirmed';
+  const showTime = new Date(booking.show?.start_time).getTime();
+  if (!Number.isFinite(showTime) || showTime <= Date.now() + CANCELLATION_CUTOFF_MS) return 'cutoff';
+  return 'eligible';
+}
+
+function cancellationControl(booking) {
+  const state = cancellationState(booking);
+  if (state === 'eligible') {
+    return `<button class="btn btn--danger btn--sm" type="button" data-cancel-booking="${Number(booking.id)}">Cancel booking</button>`;
+  }
+  if (state === 'cutoff') {
+    return '<span class="booking-cancel-note">Cancellation closes 2 hours before showtime.</span>';
+  }
+  return '';
+}
+
+function attachCancellationHandlers(container, onSuccess) {
+  container.querySelectorAll('[data-cancel-booking]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const bookingId = Number(button.dataset.cancelBooking);
+      if (!Number.isSafeInteger(bookingId) || bookingId < 1) return;
+      if (!window.confirm('Are you sure you want to cancel this booking? The seats will be released.')) return;
+
+      button.disabled = true;
+      const originalLabel = button.textContent;
+      button.textContent = 'Cancelling…';
+      let message = button.parentElement.querySelector('.booking-action-message');
+      if (!message) {
+        message = document.createElement('p');
+        message.className = 'booking-action-message';
+        message.setAttribute('role', 'status');
+        button.parentElement.append(message);
+      }
+      message.textContent = '';
+      try {
+        await cancelUserBooking(bookingId);
+        message.textContent = 'Booking cancelled successfully. Your seats have been released.';
+        await onSuccess();
+      } catch (error) {
+        message.textContent = error.message || 'Could not cancel this booking. Please try again.';
+        button.disabled = false;
+        button.textContent = originalLabel;
+      }
+    });
+  });
+}
 
 function dateTime(value) {
   const date = new Date(value);
@@ -40,6 +91,7 @@ function bookingCard(booking) {
     <div class="booking-card__side">
       <strong class="booking-card__price">${formatPrice(booking.total_amount)}</strong>
       <a class="btn btn--outline btn--sm" href="my-bookings.html?id=${Number(booking.id)}">View details</a>
+      ${cancellationControl(booking)}
     </div>
   </article>`;
 }
@@ -70,6 +122,7 @@ async function loadList(page = 1) {
       return;
     }
     contentEl.innerHTML = `<div class="booking-list">${result.bookings.map(bookingCard).join('')}</div>`;
+    attachCancellationHandlers(contentEl, () => loadList(page));
     renderPagination(result.pagination);
   } catch (error) {
     statusEl.innerHTML = stateHtml({
@@ -110,8 +163,10 @@ async function loadDetail(id) {
         <h3>Seats and price</h3>
         <div class="table-scroll"><table class="booking-detail__seats"><thead><tr><th>Seat</th><th>Category</th><th>Price</th></tr></thead><tbody>${seatRows || '<tr><td colspan="3">No seat details available.</td></tr>'}</tbody></table></div>
         <div class="booking-detail__total"><span>Total paid / payable</span><span>${formatPrice(booking.total_amount)}</span></div>
+        ${cancellationControl(booking) ? `<div class="booking-detail__actions">${cancellationControl(booking)}</div>` : ''}
         <p class="summary-card__note">Demo project: no real payment is taken.</p>
       </article>`;
+    attachCancellationHandlers(contentEl, () => loadDetail(id));
   } catch (error) {
     statusEl.innerHTML = stateHtml({
       title: error instanceof ApiError && error.status === 404 ? 'Booking not found' : error instanceof ApiError && error.status === 401 ? 'Please log in' : 'Could not load booking',
