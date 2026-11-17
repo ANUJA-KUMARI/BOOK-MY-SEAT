@@ -137,6 +137,14 @@ export async function getUserBooking(id) {
   return request(`/bookings/${parseId(id)}`);
 }
 
+/** DELETE /api/bookings/:id. The server enforces ownership and the two-hour cutoff. */
+export async function cancelUserBooking(id) {
+  return request(`/bookings/${parseId(id)}`, {
+    method: 'DELETE',
+    headers: { 'x-csrf-token': csrfToken() },
+  });
+}
+
 
 // Phase 8 admin catalogue API. All write operations use the existing same-origin + CSRF protections.
 export async function getAdminMovies({ search = '', status = 'all' } = {}) {
