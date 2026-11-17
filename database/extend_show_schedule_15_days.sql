@@ -123,25 +123,33 @@ WHERE NOT EXISTS (
 );
 
 -- Add the same three category prices to the newly created shows.
+-- Use one scan of the temporary plan: MySQL cannot reopen a TEMPORARY table
+-- multiple times in a UNION-derived table (ERROR 1137).
 INSERT INTO show_prices (show_id, category, price)
-SELECT s.id, prices.category, prices.price
+SELECT s.id, price_rows.category, price_rows.price
 FROM tmp_bms_extension_plan p
-JOIN shows s ON s.screen_id = p.screen_id AND s.start_time = p.start_utc
-JOIN (
-  SELECT p2.screen_id, p2.start_utc, 'STANDARD' AS category, p2.standard_price AS price
-  FROM tmp_bms_extension_plan p2
-  UNION ALL
-  SELECT p2.screen_id, p2.start_utc, 'PREMIUM', p2.premium_price
-  FROM tmp_bms_extension_plan p2
-  UNION ALL
-  SELECT p2.screen_id, p2.start_utc, 'RECLINER', p2.recliner_price
-  FROM tmp_bms_extension_plan p2
-) AS prices ON prices.screen_id = p.screen_id AND prices.start_utc = p.start_utc
+JOIN shows s
+  ON s.screen_id = p.screen_id
+ AND s.start_time = p.start_utc
+CROSS JOIN (
+  SELECT 'STANDARD' AS category, 1 AS price_slot
+  UNION ALL SELECT 'PREMIUM', 2
+  UNION ALL SELECT 'RECLINER', 3
+) AS price_rows
+CROSS JOIN (
+  SELECT 1 AS keep_row
+) AS one_row
 WHERE NOT EXISTS (
-  SELECT 1 FROM show_prices sp
-  WHERE sp.show_id = s.id AND sp.category = prices.category
+  SELECT 1
+  FROM show_prices existing_price
+  WHERE existing_price.show_id = s.id
+    AND existing_price.category = price_rows.category
+)
+AND (
+  (price_rows.price_slot = 1 AND p.standard_price IS NOT NULL)
+  OR (price_rows.price_slot = 2 AND p.premium_price IS NOT NULL)
+  OR (price_rows.price_slot = 3 AND p.recliner_price IS NOT NULL)
 );
-
 COMMIT;
 
 DROP TEMPORARY TABLE IF EXISTS tmp_bms_template_dates;
