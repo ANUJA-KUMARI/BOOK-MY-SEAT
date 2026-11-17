@@ -46,3 +46,19 @@
   .booking-detail__grid { grid-template-columns: 1fr; }
   .booking-detail__seats th, .booking-detail__seats td { padding: 0.55rem 0.35rem; font-size: var(--fs-sm); }
 }
+
+
+/* Customer booking cancellation */
+.btn--danger {
+  border: 1px solid #9f263e;
+  background: #9f263e;
+  color: #fff;
+}
+.btn--danger:hover:not(:disabled) { background: #7f1d32; border-color: #7f1d32; }
+.btn--danger:disabled { cursor: wait; opacity: 0.65; }
+.booking-cancel-note, .booking-action-message {
+  color: var(--c-ink-soft);
+  font-size: var(--fs-sm);
+}
+.booking-action-message { margin: var(--space-2) 0 0; max-width: 18rem; }
+.booking-detail__actions { display: flex; justify-content: flex-end; margin-top: var(--space-4); }
