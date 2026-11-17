@@ -126,7 +126,12 @@ WHERE NOT EXISTS (
 -- Use one scan of the temporary plan: MySQL cannot reopen a TEMPORARY table
 -- multiple times in a UNION-derived table (ERROR 1137).
 INSERT INTO show_prices (show_id, category, price)
-SELECT s.id, price_rows.category, price_rows.price
+SELECT s.id, price_rows.category,
+       CASE price_rows.price_slot
+         WHEN 1 THEN p.standard_price
+         WHEN 2 THEN p.premium_price
+         WHEN 3 THEN p.recliner_price
+       END
 FROM tmp_bms_extension_plan p
 JOIN shows s
   ON s.screen_id = p.screen_id
@@ -136,9 +141,6 @@ CROSS JOIN (
   UNION ALL SELECT 'PREMIUM', 2
   UNION ALL SELECT 'RECLINER', 3
 ) AS price_rows
-CROSS JOIN (
-  SELECT 1 AS keep_row
-) AS one_row
 WHERE NOT EXISTS (
   SELECT 1
   FROM show_prices existing_price
