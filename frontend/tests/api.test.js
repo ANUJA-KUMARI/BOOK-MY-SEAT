@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ApiError, getMovies, getMovie, getMovieShows, getShowSeats, createBooking, getUserBookings, getUserBooking } from '../js/api.js';
+import { ApiError, getMovies, getMovie, getMovieShows, getShowSeats, createBooking, getUserBookings, getUserBooking, cancelUserBooking } from '../js/api.js';
 
 const originalFetch = globalThis.fetch;
 const originalDocument = globalThis.document;
@@ -138,6 +138,31 @@ test('getUserBooking requests the selected booking detail with same-origin crede
   assert.equal(call.url, '/api/bookings/9');
   assert.equal(call.options.credentials, 'same-origin');
   assert.equal(result.booking.booking_ref, 'BMS-TEST');
+});
+
+test('cancelUserBooking sends an authenticated same-origin DELETE with CSRF', async () => {
+  globalThis.document = { cookie: 'bms_csrf=cancel-token-123' };
+  let call;
+  globalThis.fetch = async (url, options) => {
+    call = { url, options };
+    return { ok: true, status: 200, json: async () => ({ success: true, data: { booking: { id: 9, status: 'CANCELLED' } } }) };
+  };
+  const result = await cancelUserBooking('9');
+  assert.equal(call.url, '/api/bookings/9');
+  assert.equal(call.options.method, 'DELETE');
+  assert.equal(call.options.credentials, 'same-origin');
+  assert.equal(call.options.headers['x-csrf-token'], 'cancel-token-123');
+  assert.equal(result.booking.status, 'CANCELLED');
+});
+
+test('cancelUserBooking rejects missing CSRF and invalid booking IDs before network access', async () => {
+  globalThis.document = { cookie: '' };
+  let calls = 0;
+  globalThis.fetch = async () => { calls += 1; };
+  await assert.rejects(cancelUserBooking(9), (error) => error instanceof ApiError && error.status === 403);
+  globalThis.document = { cookie: 'bms_csrf=token' };
+  await assert.rejects(cancelUserBooking('invalid'), (error) => error instanceof ApiError && error.status === 400);
+  assert.equal(calls, 0);
 });
 
 test('getUserBooking rejects malformed IDs before network access', async () => {
