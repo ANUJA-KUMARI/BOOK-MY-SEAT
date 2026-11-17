@@ -139,9 +139,11 @@ export async function getUserBooking(id) {
 
 /** DELETE /api/bookings/:id. The server enforces ownership and the two-hour cutoff. */
 export async function cancelUserBooking(id) {
+  const token = csrfToken();
+  if (!token) throw new ApiError('Your security token is missing. Refresh the page and try again.', 403);
   return request(`/bookings/${parseId(id)}`, {
     method: 'DELETE',
-    headers: { 'x-csrf-token': csrfToken() },
+    headers: { 'x-csrf-token': token },
   });
 }
 
