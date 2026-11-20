@@ -11,7 +11,8 @@
     "db:check": "node scripts/check-db.js",
     "test:frontend": "node --experimental-default-type=module --test ../frontend/tests/api.test.js ../frontend/tests/auth-api.test.js ../frontend/tests/validators.test.mjs",
     "test:all": "npm test && npm run test:frontend",
-    "test:release": "npm run test:all && npm run db:check"
+    "test:release": "npm run test:all && npm run db:check",
+    "db:backup": "node scripts/backup-db.js"
   },
   "engines": {
     "node": ">=20.0.0"

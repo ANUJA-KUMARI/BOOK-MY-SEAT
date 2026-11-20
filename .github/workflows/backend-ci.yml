@@ -1,0 +1,43 @@
+name: Backend and frontend tests
+
+on:
+  push:
+    branches: [main, "automation/**"]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - ".github/workflows/backend-ci.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - ".github/workflows/backend-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: book-my-seat-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Node.js 22 regression suite
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Run backend and frontend tests
+        run: npm run test:all
