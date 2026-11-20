@@ -1,10 +1,9 @@
-// Every API route is mounted here under /api (see app.js).
-// Auth, bookings and seat availability routes are added in their respective phases.
-
+// Every API route is mounted here under /api.
 const express = require('express');
 const healthController = require('../controllers/health.controller');
 const movieRoutes = require('./movie.routes');
 const authRoutes = require('./auth.routes');
+const adminRegistrationRoutes = require('./admin-registration.routes');
 const seatRoutes = require('./seat.routes');
 const bookingRoutes = require('./booking.routes');
 const adminRoutes = require('./admin.routes');
@@ -14,10 +13,10 @@ const adminBookingsRoutes = require('./admin-bookings.routes');
 const adminDashboardRoutes = require('./admin-dashboard.routes');
 
 const router = express.Router();
-
 router.get('/health', healthController.check);
 router.use('/movies', movieRoutes);
 router.use('/auth', authRoutes);
+router.use('/admin-registration', adminRegistrationRoutes);
 router.use('/shows', seatRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/admin', adminRoutes);
@@ -25,5 +24,4 @@ router.use('/admin', adminVenuesRoutes);
 router.use('/admin', adminShowsRoutes);
 router.use('/admin', adminBookingsRoutes);
 router.use('/admin', adminDashboardRoutes);
-
 module.exports = router;
