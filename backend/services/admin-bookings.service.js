@@ -2,7 +2,7 @@ const { getPool, toDatabaseError } = require('../config/db');
 const { toIsoUtc } = require('../utils/time');
 
 const BOOKING_SELECT = `
-  SELECT b.id, b.booking_ref, b.status, b.total_amount, b.created_at, b.cancelled_at,
+  SELECT b.id, b.booking_ref, b.status, b.total_amount, b.created_at, b.cancelled_at, b.expires_at, b.confirmed_at,
          u.id AS user_id, u.name AS customer_name, u.email AS customer_email,
          s.id AS show_id, s.start_time AS show_start_time, s.status AS show_status,
          m.id AS movie_id, m.title AS movie_title, m.poster_url,
@@ -36,6 +36,8 @@ function mapAdminBookings(rows, seatRows) {
     total_amount: Number(row.total_amount),
     created_at: toIsoUtc(row.created_at),
     cancelled_at: row.cancelled_at ? toIsoUtc(row.cancelled_at) : null,
+    expires_at: row.expires_at ? toIsoUtc(row.expires_at) : null,
+    confirmed_at: row.confirmed_at ? toIsoUtc(row.confirmed_at) : null,
     customer: {
       id: Number(row.user_id),
       name: row.customer_name,

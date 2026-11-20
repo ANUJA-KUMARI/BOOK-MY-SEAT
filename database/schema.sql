@@ -135,14 +135,17 @@ CREATE TABLE IF NOT EXISTS bookings (
     booking_ref VARCHAR(40) NOT NULL,
     user_id BIGINT UNSIGNED NOT NULL,
     show_id BIGINT UNSIGNED NOT NULL,
-    status ENUM('CONFIRMED', 'CANCELLED') NOT NULL DEFAULT 'CONFIRMED',
+    status ENUM('PENDING', 'CONFIRMED', 'CANCELLED', 'EXPIRED') NOT NULL DEFAULT 'PENDING',
     total_amount DECIMAL(10,2) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     cancelled_at DATETIME NULL,
+    expires_at DATETIME NULL,
+    confirmed_at DATETIME NULL,
     PRIMARY KEY (id),
     UNIQUE KEY uq_bookings_ref (booking_ref),
     UNIQUE KEY uq_bookings_id_show (id, show_id),
     KEY idx_bookings_user_created (user_id, created_at),
+    KEY idx_bookings_expiry (status, expires_at, id),
     CONSTRAINT chk_bookings_total_nonnegative CHECK (total_amount >= 0),
     CONSTRAINT fk_bookings_user
         FOREIGN KEY (user_id) REFERENCES users (id)
