@@ -8,14 +8,14 @@ async function api(path, options = {}) {
   if (!response.ok || !body.success) throw new ApiError(body?.error?.message || 'Request failed.', response.status);
   return body.data;
 }
-function el(tag, text) { const node = document.createElement(tag); node.textContent = text; return node; }
+function el(tag, className, text) { const node = document.createElement(tag); if (text === undefined) node.textContent = className; else { node.className = className; node.textContent = text; } return node; }
 async function loadApplications() {
   try {
     const { applications } = await api('/applications');
     const root = $('applications'); root.replaceChildren();
     if (!applications.length) { root.append(el('p', 'No admin applications yet.')); return; }
     for (const app of applications) {
-      const card = el('article', 'admin-module');
+      const card = document.createElement('article'); card.className = 'admin-module';
       card.append(el('span', 'admin-module__number', app.adminId));
       card.append(el('h3', app.name));
       card.append(el('p', app.email + ' · ' + app.status));
