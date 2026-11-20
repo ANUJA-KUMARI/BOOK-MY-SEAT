@@ -14,6 +14,7 @@ const PAGE_SIZE = 10;
 const CANCELLATION_CUTOFF_MS = 2 * 60 * 60 * 1000;
 
 function cancellationState(booking) {
+  if (String(booking.status).toUpperCase() === 'PENDING') return 'eligible';
   if (String(booking.status).toUpperCase() !== 'CONFIRMED') return 'not-confirmed';
   const showTime = new Date(booking.show?.start_time).getTime();
   if (!Number.isFinite(showTime) || showTime <= Date.now() + CANCELLATION_CUTOFF_MS) return 'cutoff';
@@ -70,7 +71,7 @@ function dateTime(value) {
 
 function statusPill(status) {
   const value = String(status || 'UNKNOWN').toUpperCase();
-  const modifier = value === 'CONFIRMED' ? 'confirmed' : value === 'CANCELLED' ? 'cancelled' : '';
+  const modifier = value === 'CONFIRMED' ? 'confirmed' : value === 'CANCELLED' ? 'cancelled' : value === 'PENDING' ? 'pending' : value === 'EXPIRED' ? 'expired' : '';
   return `<span class="booking-status-pill ${modifier ? `booking-status-pill--${modifier}` : ''}">${escapeHtml(value)}</span>`;
 }
 

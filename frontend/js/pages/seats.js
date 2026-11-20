@@ -1,7 +1,7 @@
 // Seat selection page: loads database-backed show availability and submits confirmed bookings.
 
 import { initCommon, stateHtml } from '../components.js';
-import { getMovie, getShowSeats, createBooking, ApiError } from '../api.js';
+import { getMovie, getShowSeats, createBooking, confirmBooking, ApiError } from '../api.js';
 import { escapeHtml, formatLongDate, formatPrice, formatTime, getParam, root } from '../utils.js';
 
 initCommon();
@@ -29,6 +29,8 @@ let panelEls = null;
 let prices = {};
 let currentShowId = null;
 let bookingInProgress = false;
+let pendingBooking = null;
+let refreshRequired = false;
 
 const seatLabel = (seat) => `${seat.row_label}${seat.seat_number}`;
 
@@ -112,7 +114,7 @@ function initPanel() {
       <strong class="booking-total__amount" id="selection-total">${formatPrice(0)}</strong>
     </div>
     <p class="booking-panel__status" id="confirm-note" role="status" hidden></p>
-    <button class="btn btn--primary btn--block booking-panel__action" id="confirm-btn" type="button" disabled>Confirm booking</button>
+    <button class="btn btn--primary btn--block booking-panel__action" id="confirm-btn" type="button" disabled>Reserve seats for 10 minutes</button>
     <p class="summary-card__note">Demo project: no real payment is taken.</p>
     <p class="sr-only" id="selection-announce" role="status"></p>`;
   const $ = (id) => panel.querySelector(`#${id}`);
@@ -209,21 +211,53 @@ grid.addEventListener('keydown', (e) => {
 
 // Submit selected seat IDs only. The backend owns availability checks and price calculation.
 async function submitBooking() {
-  if (bookingInProgress || selectedIds.size < 1) return;
+  if (bookingInProgress) return;
+  if (refreshRequired) { await load(); return; }
+  if (pendingBooking) {
+    bookingInProgress = true;
+    panelEls.confirm.disabled = true;
+    panelEls.confirm.textContent = 'Confirming…';
+    try {
+      const result = await confirmBooking(pendingBooking.id);
+      pendingBooking = null;
+      panelEls.note.textContent = `Reservation confirmed! Reference: ${result.booking.booking_ref || 'see My bookings'}. Demo project: no real payment is taken.`;
+      panelEls.note.hidden = false;
+      panelEls.confirm.textContent = 'Reservation confirmed';
+      panelEls.confirm.disabled = true;
+      panelEls.announce.textContent = 'Reservation confirmed. No real payment was taken.';
+    } catch (error) {
+      panelEls.note.textContent = error.message || 'This reservation could not be confirmed.';
+      panelEls.note.hidden = false;
+      if (error instanceof ApiError && error.status === 409) {
+        pendingBooking = null;
+        refreshRequired = true;
+        panelEls.confirm.textContent = 'Refresh seats';
+        panelEls.confirm.disabled = false;
+      } else {
+        panelEls.confirm.textContent = 'Try confirmation again';
+        panelEls.confirm.disabled = false;
+      }
+    } finally { bookingInProgress = false; }
+    return;
+  }
+  if (selectedIds.size < 1) return;
   bookingInProgress = true;
   panelEls.confirm.disabled = true;
-  panelEls.confirm.textContent = 'Confirming…';
+  panelEls.confirm.textContent = 'Holding seats…';
   panelEls.note.hidden = true;
   try {
     const result = await createBooking({ showId: currentShowId, seatIds: [...selectedIds] });
     const booking = result.booking;
+    pendingBooking = booking;
     selectedIds.clear();
     panelEls.empty.hidden = true;
     panelEls.details.hidden = true;
     panelEls.total.textContent = formatPrice(booking.total_amount);
-    panelEls.note.textContent = `Booking confirmed! Reference: ${booking.booking_ref}. Your seats are ${booking.seats.map(seatLabel).join(', ')}.`;
+    const expiryText = booking.expires_at ? new Date(booking.expires_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'in 10 minutes';
+    panelEls.note.textContent = `Seats held until ${expiryText}. Press “Confirm reservation” before then. Demo project: no real payment is taken.`;
     panelEls.note.hidden = false;
-    panelEls.confirm.textContent = 'Booking confirmed';
+    panelEls.confirm.textContent = 'Confirm reservation';
+    panelEls.confirm.disabled = false;
     bookedIds = new Set([...bookedIds, ...booking.seats.map((seat) => seat.id)]);
     booking.seats.forEach((seat) => {
       const button = grid.querySelector(`[data-seat-id="${seat.id}"]`);
@@ -232,15 +266,13 @@ async function submitBooking() {
         button.classList.remove('cinema-seat--selected', 'cinema-seat--available');
         button.classList.add('cinema-seat--booked');
         button.removeAttribute('aria-pressed');
-        button.setAttribute('aria-label', `Seat ${seatLabel(seat)}, booked`);
+        button.setAttribute('aria-label', `Seat ${seatLabel(seat)}, temporarily reserved`);
       }
     });
-    panelEls.announce.textContent = `Booking confirmed. Reference ${booking.booking_ref}.`;
+    panelEls.announce.textContent = `Seats temporarily reserved. Confirm before ${expiryText}.`;
   } catch (error) {
-    panelEls.note.textContent = error.message || 'Booking could not be completed. Refresh the seat map and try again.';
-    if (error instanceof ApiError && error.status === 409) {
-      panelEls.note.textContent += ' The latest seat availability may have changed.';
-    }
+    panelEls.note.textContent = error.message || 'Reservation could not be created. Refresh the seat map and try again.';
+    if (error instanceof ApiError && error.status === 409) panelEls.note.textContent += ' The latest seat availability may have changed.';
     panelEls.note.hidden = false;
     if (error instanceof ApiError && error.status === 401) {
       const link = document.createElement('a');
@@ -249,10 +281,8 @@ async function submitBooking() {
       panelEls.note.append(link);
     }
     panelEls.confirm.disabled = false;
-    panelEls.confirm.textContent = 'Confirm booking';
-  } finally {
-    bookingInProgress = false;
-  }
+    panelEls.confirm.textContent = 'Reserve seats for 10 minutes';
+  } finally { bookingInProgress = false; }
 }
 
 panel.addEventListener('click', (e) => {
@@ -301,6 +331,8 @@ async function load() {
       throw new Error('Seat availability or pricing data is incomplete.');
     }
     currentShowId = show.id;
+    pendingBooking = null;
+    refreshRequired = false;
     prices = showPrices;
     selectedIds.clear();
     clearAlert();

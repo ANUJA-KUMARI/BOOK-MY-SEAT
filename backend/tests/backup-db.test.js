@@ -28,6 +28,8 @@ describe('database backup helpers', () => {
       database: 'book_my_seat', password: 'never-on-cli', ssl: true, sslCa: '/tmp/ca.pem',
     }, '/tmp/backup.sql');
     assert.ok(args.includes('--host=db.example.test'));
+    assert.ok(args.includes('--no-tablespaces'));
+    assert.ok(!args.includes('--events'));
     assert.ok(args.includes('--ssl-mode=REQUIRED'));
     assert.ok(args.includes('--ssl-ca=/tmp/ca.pem'));
     assert.ok(!args.some((arg) => arg.includes('never-on-cli')));

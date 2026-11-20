@@ -14,6 +14,8 @@ async function getDashboardSummary() {
       pool.execute(`SELECT COUNT(*) AS total_bookings,
         SUM(status = 'CONFIRMED') AS confirmed_bookings,
         SUM(status = 'CANCELLED') AS cancelled_bookings,
+        SUM(status = 'PENDING') AS pending_bookings,
+        SUM(status = 'EXPIRED') AS expired_bookings,
         COALESCE(SUM(CASE WHEN status = 'CONFIRMED' THEN total_amount ELSE 0 END), 0) AS confirmed_revenue
         FROM bookings`),
       pool.execute(`SELECT
@@ -51,6 +53,8 @@ async function getDashboardSummary() {
         total_bookings: Number(bookings.total_bookings || 0),
         confirmed_bookings: Number(bookings.confirmed_bookings || 0),
         cancelled_bookings: Number(bookings.cancelled_bookings || 0),
+        pending_bookings: Number(bookings.pending_bookings || 0),
+        expired_bookings: Number(bookings.expired_bookings || 0),
         confirmed_revenue: Number(bookings.confirmed_revenue || 0),
         active_movies: Number(catalog.active_movies || 0),
         cinemas: Number(catalog.cinemas || 0),

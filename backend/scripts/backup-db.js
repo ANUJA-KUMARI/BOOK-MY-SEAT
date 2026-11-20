@@ -29,7 +29,8 @@ function buildDumpArgs(db, outputPath) {
     '--quick',
     '--routines',
     '--triggers',
-    '--events',
+    // Avoid PROCESS privilege requirements for tablespace metadata and SHOW EVENTS permission.
+    '--no-tablespaces',
     '--hex-blob',
     '--set-gtid-purged=OFF',
     `--host=${db.host}`,

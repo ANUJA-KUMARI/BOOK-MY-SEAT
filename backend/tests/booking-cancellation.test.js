@@ -36,8 +36,9 @@ describe('booking cancellation eligibility', () => {
     );
   });
 
-  it('rejects already-cancelled or otherwise non-confirmed bookings', () => {
-    for (const status of ['CANCELLED', 'PENDING', 'COMPLETED']) {
+  it('allows pending cancellation and rejects terminal/non-confirmed bookings', () => {
+    assert.doesNotThrow(() => _internals.assertCancellationAllowed('PENDING', true));
+    for (const status of ['CANCELLED', 'EXPIRED', 'COMPLETED']) {
       assert.throws(
         () => _internals.assertCancellationAllowed(status, false),
         (error) => error instanceof AppError && error.status === 409,

@@ -124,6 +124,13 @@ export async function createBooking({ showId, seatIds }) {
 }
 
 
+/** POST /api/bookings/:id/confirm. Confirms an active demo reservation hold. */
+export async function confirmBooking(id) {
+  const token = csrfToken();
+  if (!token) throw new ApiError('Your security token is missing. Refresh the page and try again.', 403);
+  return request(`/bookings/${parseId(id)}/confirm`, { method: 'POST', headers: { 'x-csrf-token': token } });
+}
+
 /** GET /api/bookings?page=&limit=. Results are scoped to the authenticated user by the API. */
 export async function getUserBookings({ page = 1, limit = 20 } = {}) {
   const parsedPage = parseId(page);
