@@ -13,7 +13,8 @@
     "test:all": "npm test && npm run test:frontend",
     "test:release": "npm run test:all && npm run db:check",
     "db:backup": "node scripts/backup-db.js",
-    "bookings:expire": "node scripts/expire-bookings.js"
+    "bookings:expire": "node scripts/expire-bookings.js",
+    "admin:bootstrap": "node scripts/bootstrap-first-admin.js"
   },
   "engines": { "node": ">=20.0.0" },
   "dependencies": {

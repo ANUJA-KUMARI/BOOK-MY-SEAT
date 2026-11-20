@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin registration | BOOK_MY_SEAT</title><meta name="theme-color" content="#111114">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Gloock&display=swap">
+<link rel="stylesheet" href="../css/tokens.css"><link rel="stylesheet" href="../css/base.css"><link rel="stylesheet" href="../css/components.css"><link rel="stylesheet" href="../css/auth.css">
+</head><body data-root="../" data-nav=""><a class="skip-link" href="#main">Skip to main content</a><header class="site-header" id="site-header"></header>
+<main id="main"><div class="auth"><aside class="auth__aside" aria-hidden="true"><p class="auth__brand">BOOK<span class="brand__sep">_</span>MY<span class="brand__sep">_</span>SEAT</p><p class="auth__tagline">Administrator access is invitation-only and requires first-admin approval.</p></aside>
+<section class="auth__panel" aria-labelledby="auth-title"><h1 id="auth-title">Admin registration</h1><p class="auth__intro">Enter the Admin ID and one-time invitation code provided by the first administrator.</p>
+<form class="auth-form" id="admin-register-form" novalidate>
+<div class="field"><label class="field__label" for="adminId">Admin ID</label><input class="input" id="adminId" name="adminId" autocomplete="off" required><p class="field__error" id="adminId-error"></p></div>
+<div class="field"><label class="field__label" for="invitationCode">Invitation code</label><input class="input" id="invitationCode" name="invitationCode" type="password" autocomplete="off" required><p class="field__error" id="invitationCode-error"></p></div>
+<div class="field"><label class="field__label" for="name">Full name</label><input class="input" id="name" name="name" autocomplete="name" required><p class="field__error" id="name-error"></p></div>
+<div class="field"><label class="field__label" for="email">Email</label><input class="input" id="email" name="email" type="email" autocomplete="email" required><p class="field__error" id="email-error"></p></div>
+<div class="field"><label class="field__label" for="password">Password</label><input class="input" id="password" name="password" type="password" autocomplete="new-password" required><p class="field__hint">At least 8 characters; no composition rules.</p><p class="field__error" id="password-error"></p></div>
+<div class="field"><label class="field__label" for="confirm">Confirm password</label><input class="input" id="confirm" name="confirm" type="password" autocomplete="new-password" required><p class="field__error" id="confirm-error"></p></div>
+<p class="form-status" id="form-status" role="status" hidden></p><button class="btn btn--primary btn--block" type="submit">Submit for approval</button></form>
+<p class="auth__switch">Already approved? <a class="text-link" href="login.html">Admin login</a></p></section></div></main>
+<footer class="site-footer" id="site-footer"></footer><script type="module" src="admin-register.js"></script></body></html>
