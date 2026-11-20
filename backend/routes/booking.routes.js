@@ -8,6 +8,7 @@ const router = express.Router();
 router.get('/', authenticate, bookingController.listBookings);
 router.get('/:id', authenticate, bookingController.getBooking);
 router.delete('/:id', requireSameOrigin, authenticate, requireCsrf, bookingController.cancelBooking);
+router.post('/:id/confirm', requireSameOrigin, authenticate, requireCsrf, bookingController.confirmBooking);
 router.post('/', requireSameOrigin, authenticate, requireCsrf, bookingController.createBooking);
 
 module.exports = router;

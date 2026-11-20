@@ -5,7 +5,7 @@ const { parseId, parseOptionalText } = require('../validators/params');
 
 function parsePage(value, name, fallback, maximum) {
   if (value === undefined) return fallback;
-  if (typeof value !== 'string' || !/^[1-9]\d*$/.test(value) || !Number.isSafeInteger(Number(value)) || Number(value) > maximum) {
+  if (typeof value !== 'string' || !/^[1-9]\\d*$/.test(value) || !Number.isSafeInteger(Number(value)) || Number(value) > maximum) {
     throw new AppError(400, name + ' must be a whole number between 1 and ' + maximum + '.');
   }
   return Number(value);
@@ -14,8 +14,8 @@ function parsePage(value, name, fallback, maximum) {
 async function listBookings(req, res) {
   const search = parseOptionalText(req.query.search, 'search', 100);
   const status = req.query.status === undefined ? 'all' : req.query.status;
-  if (!['all', 'CONFIRMED', 'CANCELLED'].includes(status)) {
-    throw new AppError(400, 'status must be all, CONFIRMED or CANCELLED.');
+  if (!['all', 'PENDING', 'CONFIRMED', 'CANCELLED', 'EXPIRED'].includes(status)) {
+    throw new AppError(400, 'status must be all, PENDING, CONFIRMED, CANCELLED or EXPIRED.');
   }
   const page = parsePage(req.query.page, 'page', 1, 1000000);
   const limit = parsePage(req.query.limit, 'limit', 20, 50);

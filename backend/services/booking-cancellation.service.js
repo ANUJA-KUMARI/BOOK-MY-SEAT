@@ -6,10 +6,10 @@ const { toIsoUtc } = require('../utils/time');
 const CANCELLATION_CUTOFF_HOURS = 2;
 
 function assertCancellationAllowed(status, cutoffPassed) {
-  if (status !== 'CONFIRMED') {
-    throw new AppError(409, 'Only confirmed bookings can be cancelled.');
+  if (!['CONFIRMED', 'PENDING'].includes(status)) {
+    throw new AppError(409, 'Only pending or confirmed bookings can be cancelled.');
   }
-  if (cutoffPassed) {
+  if (status === 'CONFIRMED' && cutoffPassed) {
     throw new AppError(409, 'Bookings can only be cancelled more than 2 hours before showtime.');
   }
 }
@@ -23,52 +23,37 @@ async function cancelUserBooking(userId, bookingId) {
     await connection.beginTransaction();
     transactionStarted = true;
 
-    // Lock the owner's booking first. A concurrent cancellation waits here and then
-    // observes CANCELLED instead of releasing the same seats twice.
-    // Lock only the booking row. Locking a JOIN would also request a lock on
-    // shows, which would require broader UPDATE privileges for the app account.
     const [rows] = await connection.execute(
       `SELECT id, status, show_id
-       FROM bookings
-       WHERE id = ? AND user_id = ?
-       LIMIT 1
-       FOR UPDATE`,
+       FROM bookings WHERE id = ? AND user_id = ? LIMIT 1 FOR UPDATE`,
       [bookingId, userId],
     );
-
-    if (rows.length === 0) {
-      throw new AppError(404, 'Booking not found.');
-    }
+    if (rows.length === 0) throw new AppError(404, 'Booking not found.');
     const booking = rows[0];
-    if (booking.status !== 'CONFIRMED') {
-      throw new AppError(409, 'Only confirmed bookings can be cancelled.');
+    if (!['CONFIRMED', 'PENDING'].includes(booking.status)) {
+      throw new AppError(409, 'Only pending or confirmed bookings can be cancelled.');
     }
 
-    // Read showtime without locking or modifying the shows table.
-    const [showRows] = await connection.execute(
-      `SELECT start_time,
-              (start_time <= DATE_ADD(UTC_TIMESTAMP(), INTERVAL 2 HOUR)) AS cutoff_passed
-       FROM shows
-       WHERE id = ?
-       LIMIT 1`,
-      [booking.show_id],
-    );
-    if (showRows.length === 0) {
-      throw new AppError(404, 'Show not found.');
-    }
-    if (Number(showRows[0].cutoff_passed) === 1) {
-      throw new AppError(409, 'Bookings can only be cancelled more than 2 hours before showtime.');
+    if (booking.status === 'CONFIRMED') {
+      const [showRows] = await connection.execute(
+        `SELECT start_time,
+                (start_time <= DATE_ADD(UTC_TIMESTAMP(), INTERVAL 2 HOUR)) AS cutoff_passed
+         FROM shows WHERE id = ? LIMIT 1`,
+        [booking.show_id],
+      );
+      if (showRows.length === 0) throw new AppError(404, 'Show not found.');
+      if (Number(showRows[0].cutoff_passed) === 1) {
+        throw new AppError(409, 'Bookings can only be cancelled more than 2 hours before showtime.');
+      }
     }
 
     const [bookingUpdate] = await connection.execute(
       `UPDATE bookings
-       SET status = 'CANCELLED', cancelled_at = UTC_TIMESTAMP()
-       WHERE id = ? AND user_id = ? AND status = 'CONFIRMED'`,
-      [bookingId, userId],
+       SET status = 'CANCELLED', cancelled_at = UTC_TIMESTAMP(), expires_at = NULL
+       WHERE id = ? AND user_id = ? AND status = ?`,
+      [bookingId, userId, booking.status],
     );
-    if (bookingUpdate.affectedRows !== 1) {
-      throw new AppError(409, 'This booking can no longer be cancelled.');
-    }
+    if (bookingUpdate.affectedRows !== 1) throw new AppError(409, 'This booking can no longer be cancelled.');
 
     const [seatUpdate] = await connection.execute(
       'UPDATE booking_seats SET active = NULL WHERE booking_id = ? AND active = 1',
@@ -77,7 +62,6 @@ async function cancelUserBooking(userId, bookingId) {
 
     await connection.commit();
     transactionStarted = false;
-
     return {
       id: Number(booking.id),
       status: 'CANCELLED',
