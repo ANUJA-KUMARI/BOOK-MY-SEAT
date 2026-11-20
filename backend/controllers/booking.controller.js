@@ -1,6 +1,7 @@
 const bookingService = require('../services/booking.service');
 const bookingReadService = require('../services/booking-read.service');
 const bookingCancellationService = require('../services/booking-cancellation.service');
+const bookingConfirmationService = require('../services/booking-confirmation.service');
 const { validateCreateBooking } = require('../validators/booking');
 const { parseId } = require('../validators/params');
 const AppError = require('../utils/AppError');
@@ -13,6 +14,12 @@ async function createBooking(req, res) {
     ...input,
   });
   return sendSuccess(res, { booking }, 201);
+}
+
+async function confirmBooking(req, res) {
+  const bookingId = parseId(req.params.id, 'booking id');
+  const booking = await bookingConfirmationService.confirmUserBooking(req.auth.id, bookingId);
+  return sendSuccess(res, { booking });
 }
 
 async function listBookings(req, res) {
@@ -43,4 +50,4 @@ function parsePage(value, name, fallback, maximum) {
   return Number(value);
 }
 
-module.exports = { createBooking, listBookings, getBooking, cancelBooking, _internals: { parsePage } };
+module.exports = { createBooking, confirmBooking, listBookings, getBooking, cancelBooking, _internals: { parsePage } };
