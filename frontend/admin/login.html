@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Admin login | BOOK_MY_SEAT</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="../css/tokens.css"><link rel="stylesheet" href="../css/base.css"><link rel="stylesheet" href="../css/components.css"><link rel="stylesheet" href="../css/auth.css"></head>
+<body data-root="../" data-nav=""><main id="main"><div class="auth"><aside class="auth__aside"><p class="auth__brand">BOOK_MY_SEAT</p><p class="auth__tagline">Secure administrator sign-in.</p></aside><section class="auth__panel"><h1>Admin login</h1><p class="auth__intro">Use your Admin ID, registered email and password.</p>
+<form class="auth-form" id="admin-login-form" novalidate>
+<div class="field"><label class="field__label" for="adminId">Admin ID</label><input class="input" id="adminId" name="adminId" required><p class="field__error" id="adminId-error"></p></div>
+<div class="field"><label class="field__label" for="email">Email</label><input class="input" id="email" name="email" type="email" autocomplete="email" required><p class="field__error" id="email-error"></p></div>
+<div class="field"><label class="field__label" for="password">Password</label><input class="input" id="password" name="password" type="password" autocomplete="current-password" required><p class="field__error" id="password-error"></p></div>
+<p class="form-status" id="form-status" role="status" hidden></p><button class="btn btn--primary btn--block" type="submit">Log in as admin</button></form>
+<p class="auth__switch">Need an invitation? <a class="text-link" href="register.html">Admin registration</a></p></section></div></main><script type="module" src="admin-login.js"></script></body></html>
